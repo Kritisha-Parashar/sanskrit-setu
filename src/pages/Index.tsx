@@ -200,7 +200,7 @@ const Footer = () => (
           <span className="font-display text-xl font-bold text-primary-foreground">Sanskrit-Setu</span>
         </div>
         <p className="text-primary-foreground/70 text-sm">
-          © 2024 Sanskrit-Setu. Bridge to Ancient Wisdom.
+          © 2026 Sanskrit-Setu. Bridge to Ancient Wisdom.
         </p>
       </div>
     </div>

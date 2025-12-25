@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { login, signup } from "../lib/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +11,27 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    if (isLogin) {
+      await login(email, password);
+    } else {
+      await signup(email, password);
+    }
+
     navigate("/dashboard");
-  };
+  } catch (err: any) {
+    alert(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -113,11 +129,16 @@ const Login = () => {
                 </div>
               )}
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
+                disabled={loading}
                 className="w-full h-14 text-lg font-bold rounded-2xl duolingo-button bg-primary text-primary-foreground"
               >
-                {isLogin ? "Log In" : "Create Account"}
+                {loading
+                  ? "Please wait..."
+                  : isLogin
+                  ? "Log In"
+                  : "Create Account"}
               </Button>
             </form>
 
