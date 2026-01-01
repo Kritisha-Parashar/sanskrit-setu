@@ -11,7 +11,7 @@ const DashboardNavbar = () => (
       <Link to="/" className="flex items-center gap-3">
         <span className="font-display text-2xl font-bold text-primary-foreground">Sanskrit-Setu</span>
       </Link>
-      
+
       <div className="flex items-center gap-4">
         {/* Stats Bar */}
         <div className="hidden md:flex items-center gap-4 bg-primary/30 rounded-2xl px-4 py-2">
@@ -30,16 +30,18 @@ const DashboardNavbar = () => (
             <span className="font-bold text-primary-foreground">3</span>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <Link to="/profile">
             <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/30">
               <User className="w-5 h-5" />
             </Button>
           </Link>
-          <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/30">
-            <Settings className="w-5 h-5" />
-          </Button>
+          <Link to="/settings">
+            <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/30">
+              <Settings className="w-5 h-5" />
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
@@ -91,13 +93,13 @@ const LearningPath = () => {
       <h3 className="font-display text-xl font-bold text-foreground mb-6 text-center">
         Your Learning Path
       </h3>
-      
+
       {/* Vertical Path Line */}
       <div className="absolute left-1/2 top-20 bottom-0 w-1 bg-border -translate-x-1/2" />
-      
+
       <div className="flex flex-col items-center gap-6 relative z-10">
         {lessons.map((lesson, index) => (
-          <Link 
+          <Link
             key={lesson.id}
             to={lesson.locked ? "#" : "/lesson/1"}
             className={`relative group ${lesson.locked ? "cursor-not-allowed" : ""}`}
@@ -106,17 +108,17 @@ const LearningPath = () => {
             {index < lessons.length - 1 && (
               <div className="absolute left-1/2 -bottom-4 w-2 h-2 bg-border rounded-full -translate-x-1/2" />
             )}
-            
+
             <div
               className={`
                 w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold
                 transition-all duration-300 shadow-card
-                ${lesson.completed 
-                  ? "bg-success text-success-foreground" 
-                  : lesson.current 
-                    ? "bg-accent text-accent-foreground animate-pulse-soft ring-4 ring-accent/30" 
-                    : lesson.locked 
-                      ? "bg-muted text-muted-foreground" 
+                ${lesson.completed
+                  ? "bg-success text-success-foreground"
+                  : lesson.current
+                    ? "bg-accent text-accent-foreground animate-pulse-soft ring-4 ring-accent/30"
+                    : lesson.locked
+                      ? "bg-muted text-muted-foreground"
                       : "bg-primary text-primary-foreground"}
                 ${!lesson.locked && "hover:scale-110 hover:shadow-elevated"}
               `}
@@ -129,7 +131,7 @@ const LearningPath = () => {
                 <span>{lesson.id}</span>
               )}
             </div>
-            
+
             {/* Tooltip */}
             <div className={`
               absolute left-full ml-4 top-1/2 -translate-y-1/2 
@@ -204,7 +206,7 @@ const QuickActions = () => (
         </CardContent>
       </Card>
     </Link>
-    
+
     <Link to="/lectures">
       <Card className="bg-card hover:bg-muted transition-colors border-0 shadow-card rounded-2xl cursor-pointer">
         <CardContent className="p-5 flex items-center gap-4">
@@ -226,7 +228,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <DashboardNavbar />
-      
+
       <main className="container mx-auto px-4 py-6">
         <div className="max-w-5xl mx-auto">
           <div className="grid lg:grid-cols-3 gap-6">
@@ -235,7 +237,7 @@ const Dashboard = () => {
               <WelcomeSection />
               <LearningPath />
             </div>
-            
+
             {/* Sidebar - Right Side */}
             <div className="space-y-6">
               <DailyGoal />

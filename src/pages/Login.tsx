@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import InteractiveMascot from "@/components/InteractiveMascot";
+import { getAuth, signOut } from "firebase/auth";
+
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);

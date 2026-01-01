@@ -10,6 +10,8 @@ import Lectures from "./pages/Lectures";
 import LessonPlayer from "./pages/LessonPlayer";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
+
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,7 @@ const App = () => (
           <Route path="/lectures" element={<Lectures />} />
           <Route path="/lesson/:lectureId/:lessonId" element={<LessonPlayer />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
