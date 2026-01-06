@@ -1,112 +1,136 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { BookOpen } from "lucide-react";
 import InteractiveMascot from "@/components/InteractiveMascot";
 import teacher from "@/assets/teacher.png";
 import heroBg from "@/assets/hero-bg.png";
+import { useUserProgress } from "@/context/UserProgressContext";
 
-const Navbar = () => (
-  <nav className="fixed top-0 left-0 right-0 z-50 bg-primary-dark/95 backdrop-blur-lg">
-    <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-      <Link to="/" className="flex items-center gap-3">
-        <span className="font-display text-2xl font-bold text-primary-foreground">Sanskrit-Setu</span>
-      </Link>
-      <div className="flex items-center gap-4">
-        <Link to="/login">
-          <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary/30">
-            Log In
-          </Button>
+const Navbar = () => {
+  const navigate = useNavigate();
+  const { startGuestSession } = useUserProgress(); 
+
+  const handleStart = () => {
+    startGuestSession(); // Forces Guest Mode (Reset & No Save)
+    navigate("/dashboard");
+  };
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-primary-dark/95 backdrop-blur-lg">
+      <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3">
+          <span className="font-display text-2xl font-bold text-primary-foreground">Sanskrit-Setu</span>
         </Link>
-        <Link to="/login">
-          <Button className="bg-accent hover:bg-accent-dark text-accent-foreground font-bold rounded-xl px-6">
+        <div className="flex items-center gap-4">
+          <Link to="/login">
+            <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary/30">
+              Log In
+            </Button>
+          </Link>
+          <Button 
+            onClick={handleStart}
+            className="bg-accent hover:bg-accent-dark text-accent-foreground font-bold rounded-xl px-6"
+          >
             Start Learning
           </Button>
-        </Link>
+        </div>
       </div>
-    </div>
-  </nav>
-);
+    </nav>
+  );
+};
 
-const HeroSection = () => (
-  <section className="relative min-h-[90vh] flex items-center pt-16 overflow-hidden">
-    <div 
-      className="absolute inset-0 bg-cover bg-center opacity-20"
-      style={{ backgroundImage: `url(${heroBg})` }}
-    />
-    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background/80" />
-    
-    <div className="container mx-auto px-6 relative z-10">
-      <div className="grid lg:grid-cols-2 gap-12 items-center">
-        <div className="animate-slide-up">
-          <div className="inline-flex items-center gap-2 bg-card/90 text-foreground px-4 py-2 rounded-full mb-6 shadow-soft">
-            <BookOpen className="w-4 h-4 text-accent" />
-            <span className="font-semibold text-sm">Ancient Language, Modern Learning</span>
-          </div>
-          
-          <h1 className="font-display text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
-            Learn <span className="text-accent">Sanskrit</span> the Fun Way
-          </h1>
-          
-          <p className="text-xl text-foreground/80 mb-8 max-w-lg">
-            Master the mother of languages with authentic pronunciation, 
-            scholar-led teaching, and a step-by-step journey from basics to fluency.
-          </p>
-          
-          <div className="flex flex-wrap gap-4">
-            <Link to="/dashboard">
-              <Button className="bg-accent hover:bg-accent-dark text-accent-foreground font-bold text-lg px-8 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all">
+const HeroSection = () => {
+  const navigate = useNavigate();
+  const { startGuestSession } = useUserProgress();
+
+  const handleStartFresh = () => {
+    startGuestSession(); // Forces Guest Mode (Reset & No Save)
+    navigate("/dashboard");
+  };
+
+  return (
+    <section className="relative min-h-[90vh] flex items-center pt-16 overflow-hidden">
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-20"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background/80" />
+      
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="animate-slide-up">
+            <div className="inline-flex items-center gap-2 bg-card/90 text-foreground px-4 py-2 rounded-full mb-6 shadow-soft">
+              <BookOpen className="w-4 h-4 text-accent" />
+              <span className="font-semibold text-sm">Ancient Language, Modern Learning</span>
+            </div>
+            
+            <h1 className="font-display text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6">
+              Learn <span className="text-accent">Sanskrit</span> the Fun Way
+            </h1>
+            
+            <p className="text-xl text-foreground/80 mb-8 max-w-lg">
+              Master the mother of languages with authentic pronunciation, 
+              scholar-led teaching, and a step-by-step journey from basics to fluency.
+            </p>
+            
+            <div className="flex flex-wrap gap-4">
+              <Button 
+                onClick={handleStartFresh}
+                className="bg-accent hover:bg-accent-dark text-accent-foreground font-bold text-lg px-8 py-6 rounded-2xl shadow-lg hover:shadow-xl transition-all"
+              >
                 Start Learning Free
               </Button>
-            </Link>
-            <Link to="/login">
-              <Button variant="outline" className="bg-card/80 hover:bg-card text-foreground font-bold text-lg px-8 py-6 rounded-2xl border-2">
-                I Have an Account
-              </Button>
-            </Link>
+              
+              <Link to="/login">
+                <Button variant="outline" className="bg-card/80 hover:bg-card text-foreground font-bold text-lg px-8 py-6 rounded-2xl border-2">
+                  I Have an Account
+                </Button>
+              </Link>
+            </div>
+            
+            <div className="flex items-center gap-6 mt-8">
+              <div className="flex items-center gap-2 bg-card/60 px-3 py-1 rounded-full">
+                <div className="w-2 h-2 rounded-full bg-success" />
+                <span className="text-sm text-foreground font-medium">10,000+ Learners</span>
+              </div>
+              <div className="flex items-center gap-2 bg-card/60 px-3 py-1 rounded-full">
+                <div className="w-2 h-2 rounded-full bg-accent" />
+                <span className="text-sm text-foreground font-medium">50+ Lessons</span>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 bg-card/60 px-3 py-1 rounded-full">
+                <div className="w-2 h-2 rounded-full bg-golden" />
+                <span className="text-sm text-foreground font-medium">Expert Teachers</span>
+              </div>
+            </div>
           </div>
           
-          <div className="flex items-center gap-6 mt-8">
-            <div className="flex items-center gap-2 bg-card/60 px-3 py-1 rounded-full">
-              <div className="w-2 h-2 rounded-full bg-success" />
-              <span className="text-sm text-foreground font-medium">10,000+ Learners</span>
-            </div>
-            <div className="flex items-center gap-2 bg-card/60 px-3 py-1 rounded-full">
-              <div className="w-2 h-2 rounded-full bg-accent" />
-              <span className="text-sm text-foreground font-medium">50+ Lessons</span>
-            </div>
-            <div className="hidden sm:flex items-center gap-2 bg-card/60 px-3 py-1 rounded-full">
-              <div className="w-2 h-2 rounded-full bg-golden" />
-              <span className="text-sm text-foreground font-medium">Expert Teachers</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="relative animate-fade-in hidden lg:flex items-center justify-center">
-          <div className="relative">
-            <img 
-              src={teacher} 
-              alt="Sanskrit teacher" 
-              className="w-80 h-auto mx-auto drop-shadow-2xl"
-            />
-            <div className="absolute -bottom-4 -left-8">
-              <InteractiveMascot 
-                mood="happy" 
-                size="lg"
-                showHeart
-                messages={[
-                  "नमस्ते! 🙏",
-                  "Let's learn! 📚",
-                  "Sanskrit is fun! ✨",
-                  "Join us today! 🎉",
-                ]}
+          <div className="relative animate-fade-in hidden lg:flex items-center justify-center">
+            <div className="relative">
+              <img 
+                src={teacher} 
+                alt="Sanskrit teacher" 
+                className="w-80 h-auto mx-auto drop-shadow-2xl"
               />
+              <div className="absolute -bottom-4 -left-8">
+                <InteractiveMascot 
+                  mood="happy" 
+                  size="lg"
+                  showHeart
+                  messages={[
+                    "नमस्ते! 🙏",
+                    "Let's learn! 📚",
+                    "Sanskrit is fun! ✨",
+                    "Join us today! 🎉",
+                  ]}
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const FeaturesSection = () => (
   <section className="py-24 bg-card">
