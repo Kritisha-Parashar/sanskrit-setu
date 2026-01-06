@@ -11,6 +11,7 @@ import LessonPlayer from "./pages/LessonPlayer";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Settings from "./pages/Settings";
+import Test from "@/pages/Test";
 
 
 const queryClient = new QueryClient();
@@ -29,6 +30,8 @@ const App = () => (
           <Route path="/lesson/:lectureId/:lessonId" element={<LessonPlayer />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/test-session" element={<Test />} />
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

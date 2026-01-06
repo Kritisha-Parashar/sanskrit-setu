@@ -57,6 +57,7 @@ const LessonPlayer = () => {
     parseInt(lessonId || "1") - 1
   );
   const [showCompletion, setShowCompletion] = useState(false);
+
   
   const currentLesson = lessonsData[currentLessonIndex];
   const totalLessons = lessonsData.length;
@@ -243,5 +244,6 @@ const LessonPlayer = () => {
     </div>
   );
 };
+
 
 export default LessonPlayer;
