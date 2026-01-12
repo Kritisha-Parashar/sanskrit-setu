@@ -244,11 +244,29 @@ const QuickActions = () => (
           <div className="flex-1">
             <h3 className="font-bold text-foreground">Browse All Lectures</h3>
             <p className="text-sm text-muted-foreground">Explore available lessons</p>
+          
           </div>
           <ChevronRight className="w-6 h-6 text-muted-foreground" />
         </CardContent>
       </Card>
     </Link>
+    <Link to="/test-session">
+  <Card className="bg-card hover:bg-muted transition-colors border-0 shadow-card rounded-2xl cursor-pointer">
+    <CardContent className="p-5 flex items-center gap-4">
+      <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
+        🧪
+      </div>
+      <div className="flex-1">
+        <h3 className="font-bold text-foreground">Take Test</h3>
+        <p className="text-sm text-muted-foreground">
+          Test your pronunciation
+        </p>
+      </div>
+      <ChevronRight className="w-6 h-6 text-muted-foreground" />
+    </CardContent>
+  </Card>
+</Link>
+
   </div>
 );
 

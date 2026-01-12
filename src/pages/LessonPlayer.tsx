@@ -117,8 +117,10 @@ const courseData: Record<number, Lesson[]> = {
   ]
 };
 
-const LessonPlayer = () => {
-  const { lectureId } = useParams<{ lectureId: string }>();
+  const LessonPlayer = () => {
+  const { lectureId } = useParams<{
+  lectureId: string;}>();
+
   const navigate = useNavigate();
   const { completeLesson, progress: userProgress } = useUserProgress();
   
