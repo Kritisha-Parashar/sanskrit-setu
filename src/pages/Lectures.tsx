@@ -164,9 +164,7 @@ const Lectures = () => {
                               Locked
                             </Button>
                           ) : (
-                           // <Link to={`/lectures/${lecture.id}`}>
-                              <Link to={`/lesson/${lecture.id}/1`}>
-
+                            <Link to={`/lectures/${lecture.id}`}>
                               <Button 
                                 variant={isCompleted ? "secondary" : "default"} 
                                 className="w-full md:w-auto"

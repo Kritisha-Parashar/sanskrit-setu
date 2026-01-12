@@ -1,18 +1,20 @@
-import { getAuth, signOut } from "firebase/auth";
+import { logout } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { User, Bell, Lock, Globe } from "lucide-react";
+import { useUserProgress } from "@/context/UserProgressContext";
 
 const Settings = () => {
-  const auth = getAuth();
   const navigate = useNavigate();
+  const { logoutUser } = useUserProgress();
 
   // Logout function
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await logout();
+      logoutUser();
       navigate("/");
     } catch (error: any) {
       console.error("Logout error:", error.message);
