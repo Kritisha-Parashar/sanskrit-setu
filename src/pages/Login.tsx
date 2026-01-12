@@ -15,9 +15,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   
   const navigate = useNavigate();
-  // We don't strictly need loginUser() here if the Context loads data on mount, 
-  // but if you have a specific function to trigger data fetch, destructure it here.
-  // const { loginUser } = useUserProgress(); 
+  const { loginUser } = useUserProgress(); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,8 +28,8 @@ const Login = () => {
         await signup(email, password);
       }
       
-      // If you had a context function to set user state manually:
-      // loginUser(); 
+      // Update user context
+      loginUser();
 
       navigate("/dashboard");
     } catch (err: any) {

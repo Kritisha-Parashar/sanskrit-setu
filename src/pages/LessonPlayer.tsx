@@ -127,6 +127,11 @@ const courseData: Record<number, Lesson[]> = {
   const currentLectureId = lectureId ? parseInt(lectureId) : 1;
   const currentLessonData = courseData[currentLectureId] || courseData[1];
 
+  // Debug logging
+  useEffect(() => {
+    console.log("LessonPlayer mounted", { lectureId, currentLectureId, lessonCount: currentLessonData.length });
+  }, [lectureId, currentLectureId, currentLessonData.length]);
+
   // --- STATES ---
   const [currentLessonIndex, setCurrentLessonIndex] = useState<number>(0);
   const [showCompletion, setShowCompletion] = useState<boolean>(false);
@@ -150,15 +155,20 @@ const courseData: Record<number, Lesson[]> = {
   useEffect(() => {
     const loadVoices = () => {
       const availableVoices = window.speechSynthesis.getVoices();
+      console.log("Loading voices", { count: availableVoices.length });
       if (availableVoices.length > 0) {
         setVoices(availableVoices);
         setIsVoicesLoaded(true);
+        console.log("Voices loaded successfully");
       }
     };
     loadVoices();
     if (window.speechSynthesis.onvoiceschanged !== undefined) {
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
+    // Fallback: try loading again after a short delay
+    const timeout = setTimeout(loadVoices, 1000);
+    return () => clearTimeout(timeout);
   }, []);
 
   // --- 2. RESET STATE ---
@@ -180,9 +190,16 @@ const courseData: Record<number, Lesson[]> = {
 
   // --- 3. PLAY AUDIO ---
   const playAudio = useCallback(() => {
-    if (!window.speechSynthesis) return;
-    if (voices.length === 0) return;
+    if (!window.speechSynthesis) {
+      console.error("Speech synthesis not available");
+      return;
+    }
+    if (voices.length === 0) {
+      console.warn("No voices loaded yet");
+      return;
+    }
 
+    console.log("Playing audio", { sanskrit: currentLesson.sanskrit, word: currentLesson.word });
     window.speechSynthesis.cancel(); 
 
     // Speak just the text
