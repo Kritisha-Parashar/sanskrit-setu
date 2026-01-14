@@ -2,10 +2,10 @@
 
 ## Step 1: Create PostgreSQL User (if needed)
 
-If you get an error that role "pavitra" does not exist, create it:
+If you get an error that role "postgres" does not exist, create it:
 
 ```bash
-sudo -u postgres createuser -s pavitra
+sudo -u postgres createuser -s postgres
 ```
 
 Or if you prefer to use the `postgres` user directly, skip this step.
