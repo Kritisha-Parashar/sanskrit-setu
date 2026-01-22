@@ -13,6 +13,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   const navigate = useNavigate();
   const { loginUser } = useUserProgress(); 
@@ -20,20 +22,35 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
 
     try {
       if (isLogin) {
+        // Login flow - authenticate and redirect
         await login(email, password);
-      } else {
-        await signup(email, password);
-      }
-      
-      // Update user context
-      loginUser();
+        
+        // Update user context
+        loginUser();
 
-      navigate("/dashboard");
+        navigate("/dashboard");
+      } else {
+        // Signup flow - create account but don't auto-login
+        await signup(email, password);
+        
+        // Show success message and switch to login mode
+        setSuccessMessage("Account created successfully! Please log in to continue.");
+        setIsLogin(true);
+        setPassword(""); // Clear password field
+        setError(null);
+      }
     } catch (err: any) {
-      alert(err.message);
+      console.error("Auth error:", err);
+      const errorMessage = err.message || (isLogin ? "Login failed. Please check your credentials." : "Signup failed. Please try again.");
+      setError(errorMessage);
+      
+      // Also show alert for now (can be removed later)
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -100,12 +117,26 @@ const Login = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
+              {successMessage && (
+                <div className="bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 px-4 py-3 rounded-2xl text-sm">
+                  {successMessage}
+                </div>
+              )}
+              {error && (
+                <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-2xl text-sm">
+                  {error}
+                </div>
+              )}
+              
               <div>
                 <Input 
                   type="email" 
                   placeholder="Email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setError(null);
+                  }}
                   className="h-14 text-base bg-input border-0 rounded-2xl px-5"
                   required
                 />
@@ -116,7 +147,10 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError(null);
+                  }}
                   className="h-14 text-base bg-input border-0 rounded-2xl px-5 pr-14"
                   required
                 />
@@ -174,7 +208,11 @@ const Login = () => {
               {isLogin ? "Don't have an account? " : "Already have an account? "}
               <button
                 type="button"
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError(null);
+                  setSuccessMessage(null);
+                }}
                 className="text-accent font-bold hover:underline"
               >
                 {isLogin ? "Sign up for free" : "Log In"}

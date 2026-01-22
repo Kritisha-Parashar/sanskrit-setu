@@ -1,20 +1,29 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 interface VowelWord {
   sanskrit: string;
-  word: string;    
-  devanagariWord: string;  
-  english: string;  
-  roman: string;    
+  word: string;
+  devanagariWord: string;
+  english: string;
+  roman: string;
 }
 
 const vowelWords: VowelWord[] = [
   { sanskrit: "अ", devanagariWord: "अश्वः", word: "ashvah", roman: "a", english: "Horse" },
-  { sanskrit: "आ", devanagariWord: "आम्रम्", word: "amram", roman: "aa", english: "Mango" },
-  { sanskrit: "इ", devanagariWord: "इक्षुः", word: "ikshuh", roman: "i", english: "Sugarcane" },
-  { sanskrit: "ई", devanagariWord: "ईश्वरः", word: "eeshvarah", roman: "ii", english: "God" },
-  { sanskrit: "उ", devanagariWord: "उष्ट्रः", word: "ushtrah", roman: "u", english: "Camel" },
-  { sanskrit: "ओ", devanagariWord: "ओष्ठ", word: "oshth", roman: "o", english: "Lip" },
+  { sanskrit: "आ", devanagariWord: "आम्रम्", word: "āmram", roman: "aa", english: "Mango" },
+  { sanskrit: "इ", devanagariWord: "इक्षुः", word: "ikṣuh", roman: "i", english: "Sugarcane" },
+  { sanskrit: "ई", devanagariWord: "ईश्वरः", word: "īśvarah", roman: "ii", english: "God" },
+  { sanskrit: "उ", devanagariWord: "उदरम्", word: "udaram", roman: "u", english: "Stomach" },
+  { sanskrit: "ऊ", devanagariWord: "ऊर्णा", word: "ūrṇā", roman: "uu", english: "Wool" },
+  { sanskrit: "ऋ", devanagariWord: "ऋषिः", word: "ṛṣih", roman: "ri", english: "Sage" },
+  { sanskrit: "ऌ", devanagariWord: "ऌ", word: "ḷi", roman: "li", english: "L vowel" },
+  { sanskrit: "ए", devanagariWord: "एकः", word: "ekah", roman: "e", english: "One" },
+  { sanskrit: "औ", devanagariWord: "औषधम्", word: "auṣadham", roman: "au", english: "Medicine" },
+  { sanskrit: "ॡ", devanagariWord: "ॡ", word: "ḹ", roman: "lli", english: "Long L vowel" },
+  { sanskrit: "ऐ", devanagariWord: "ऐरावतः", word: "airāvatah", roman: "ai", english: "Airavata (Elephant)" },
+  { sanskrit: "ओ", devanagariWord: "ओष्ठ", word: "oṣṭha", roman: "o", english: "Lip" },
 ];
 
 const getRandomVowelTests = () =>
@@ -35,14 +44,26 @@ const Test = () => {
 
   const item = testSet[index];
 
-  const checkMatch = (text: string) => {
-    const t = text.toLowerCase();
+  const spokenSanskritMap: Record<string, string[]> = {
+    "अश्वः": ["ashwa", "ashva", "ashw", "aswa"],
+    "आम्रम्": ["aamram", "amram", "amaram", "amrum"],
+    "इक्षुः": ["ikshu", "ikshoo", "ikshuh", "ikshu"],
+    "ईश्वरः": ["ishwar", "eeshwar", "eeshvar", "ishwarh", "ishvar"],
+    "उदरम्": ["udaram", "udar", "udrum", "udarum"],
+    "ऊर्णा": ["oorna", "urna","udana"],
+    "ऋषिः": ["rishi", "rishee", "rshi"],
+    "ऌ": ["li", "lii", "lli"],
+    "एकः": ["ek", "ekah", "ekaa", "ekka"],
+    "ऐरावतः": ["airavat", "airavata", "airawat", "airavatah"],
+    "ॡ": ["li", "lee", "lli", "llee"],
+    "औषधम्": ["aushadham","aushdham", "aushadam","aushdham",],
+    "ओष्ठ": ["osht", "oshth", "osth", "ooshth"]
+  };
 
-    return (
-      t.includes(item.word.toLowerCase()) ||
-      t.includes(item.english.toLowerCase()) ||
-      t.startsWith(item.roman.toLowerCase())
-    );
+  const checkMatch = (text: string) => {
+    const t = text.toLowerCase().trim();
+    const list = spokenSanskritMap[item.devanagariWord] || [];
+    return list.some(accepted => t === accepted);
   };
 
   const start = () => {
@@ -98,19 +119,35 @@ const Test = () => {
           <p className="text-xl text-gray-600 mb-4">
             Score: <b className="text-[#0B7D77]">{score}</b> / {testSet.length}
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="bg-[#0B7D77] text-white px-6 py-3 rounded-xl hover:bg-[#0A6E68]"
-          >
-            Restart
-          </button>
+          <div className="flex flex-col gap-3">
+            <button
+                onClick={() => window.location.reload()}
+                className="bg-[#0B7D77] text-white px-6 py-3 rounded-xl hover:bg-[#0A6E68]"
+            >
+                Restart
+            </button>
+            <Link to="/dashboard" className="w-full">
+                <button className="w-full bg-white text-[#0B7D77] border-2 border-[#0B7D77] px-6 py-3 rounded-xl hover:bg-gray-50 font-semibold transition-colors">
+                    Go to Dashboard
+                </button>
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#9FD5CF] flex flex-col">
+    <div className="min-h-screen bg-[#9FD5CF] flex flex-col relative">
+
+      {/* Added: Back Button */}
+      <div className="absolute top-4 left-4 z-10">
+        <Link to="/dashboard">
+          <button className="flex items-center gap-2 px-4 py-2 bg-white/90 text-[#0B7D77] rounded-lg shadow-sm hover:bg-white transition-colors font-medium">
+            <ArrowLeft className="w-5 h-5" /> Back
+          </button>
+        </Link>
+      </div>
 
       {/* Orange Progress Bar */}
       <div className="h-1 bg-orange-400" style={{ width: `${((index + 1) / testSet.length) * 100}%` }} />
@@ -176,6 +213,3 @@ const Test = () => {
 };
 
 export default Test;
-
-
-

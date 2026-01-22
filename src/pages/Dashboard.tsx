@@ -4,10 +4,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Flame, Trophy, BookOpen, Star, ChevronRight, Settings, User, Zap, Crown, Target, Lock } from "lucide-react";
 import InteractiveMascot from "@/components/InteractiveMascot";
-import { useUserProgress } from "@/context/UserProgressContext"; 
+import { useUserProgress } from "@/context/UserProgressContext";
 
 const DashboardNavbar = () => {
-  const { progress } = useUserProgress(); 
+  const { progress } = useUserProgress();
 
   return (
     <nav className="bg-primary-dark sticky top-0 z-50">
@@ -26,7 +26,7 @@ const DashboardNavbar = () => {
             <div className="w-px h-6 bg-primary-foreground/20" />
             <div className="flex items-center gap-2 text-golden">
               <Zap className="w-5 h-5" />
-              <span className="font-bold text-primary-foreground">{progress.xp}</span> 
+              <span className="font-bold text-primary-foreground">{progress.xp}</span>
             </div>
             <div className="w-px h-6 bg-primary-foreground/20" />
             <div className="flex items-center gap-2 text-purple">
@@ -89,15 +89,14 @@ const WelcomeSection = () => {
 };
 
 const LearningPath = () => {
-  const { progress } = useUserProgress(); 
+  const { progress } = useUserProgress();
 
-  // Defines the curriculum structure displayed on the map
   const lessons = [
-    { id: 1, title: "Vowels (Swar)", subtitle: "The 13 Vowels" },
-    { id: 2, title: "Consonants I", subtitle: "क to न" },
-    { id: 3, title: "Consonants II", subtitle: "प to ज्ञ" },
-    { id: 4, title: "Vocabulary", subtitle: "15 Basic Words" },
-    { id: 5, title: "Sentences", subtitle: "Common Phrases" },
+    { id: 1, lessonId: "LS001", title: "Vowels (Swar)", subtitle: "The 13 Vowels" },
+    { id: 2, lessonId: "LS002", title: "Consonants I", subtitle: "Ka to Na" },
+    { id: 3, lessonId: "LS003", title: "Consonants II", subtitle: "Pa to Gya" },
+    { id: 4, lessonId: "LS004", title: "Vocabulary", subtitle: "Basic Words" },
+    { id: 5, lessonId: "LS005", title: "Sentences", subtitle: "Common Phrases" },
   ];
 
   return (
@@ -106,23 +105,20 @@ const LearningPath = () => {
         Your Learning Path
       </h3>
 
-      {/* Vertical Path Line */}
       <div className="absolute left-1/2 top-20 bottom-0 w-1 bg-border -translate-x-1/2" />
 
       <div className="flex flex-col items-center gap-6 relative z-10">
         {lessons.map((lesson, index) => {
-          // Check Context to see if lesson is available
-          const isUnlocked = progress.unlockedLessons.includes(lesson.id);
-          const isCompleted = progress.completedLessons.includes(lesson.id);
+          const isUnlocked = progress.unlockedLessons.includes(lesson.lessonId);
+          const isCompleted = progress.completedLessons.includes(lesson.lessonId);
           const isCurrent = isUnlocked && !isCompleted;
 
           return (
             <Link
               key={lesson.id}
-              to={isUnlocked ? `/lectures/${lesson.id}` : "#"} 
+              to={isUnlocked ? `/lectures/${lesson.lessonId}` : "#"}
               className={`relative group ${!isUnlocked ? "cursor-not-allowed opacity-70" : ""}`}
             >
-              {/* Connector dot */}
               {index < lessons.length - 1 && (
                 <div className="absolute left-1/2 -bottom-4 w-2 h-2 bg-border rounded-full -translate-x-1/2" />
               )}
@@ -142,13 +138,12 @@ const LearningPath = () => {
                 {isCompleted ? (
                   <Star className="w-8 h-8 fill-current" />
                 ) : !isUnlocked ? (
-                  <Lock className="w-6 h-6" /> 
+                  <Lock className="w-6 h-6" />
                 ) : (
                   <span>{lesson.id}</span>
                 )}
               </div>
 
-              {/* Tooltip */}
               <div className={`
                 absolute left-full ml-4 top-1/2 -translate-y-1/2 
                 bg-card rounded-xl p-3 shadow-elevated opacity-0 group-hover:opacity-100
@@ -157,38 +152,43 @@ const LearningPath = () => {
               `}>
                 <p className="font-bold text-foreground">{lesson.title}</p>
                 <p className="text-sm text-muted-foreground">
-                    {!isUnlocked ? "Locked" : lesson.subtitle}
+                  {!isUnlocked ? "Locked" : lesson.subtitle}
                 </p>
               </div>
             </Link>
           );
         })}
+        
+        {/* ADDED: Coming Soon Text */}
+        <div className="pt-8 pb-4 text-center opacity-50">
+          <p className="text-sm font-semibold tracking-wider uppercase text-muted-foreground">More Coming Soon...</p>
+        </div>
       </div>
     </div>
   );
 };
 
 const DailyGoal = () => {
-    const { progress } = useUserProgress();
-    
-    return (
-        <Card className="bg-card border-0 shadow-card rounded-3xl overflow-hidden">
-            <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-golden/20 flex items-center justify-center">
-                <Target className="w-6 h-6 text-golden" />
-                </div>
-                <div>
-                <h3 className="font-bold text-foreground">Progress</h3>
-                <p className="text-sm text-muted-foreground">Keep unlocking lessons!</p>
-                </div>
-            </div>
-            {/* Show progress bar based on lessons completed vs total lessons (5) */}
-            <Progress value={(progress.completedLessons.length / 5) * 100} className="h-3 bg-muted" />
-            <p className="text-sm text-muted-foreground mt-2">{progress.completedLessons.length} lessons complete</p>
-            </CardContent>
-        </Card>
-    )
+  const { progress } = useUserProgress();
+
+  return (
+    <Card className="bg-card border-0 shadow-card rounded-3xl overflow-hidden">
+      <CardContent className="p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 rounded-2xl bg-golden/20 flex items-center justify-center">
+            <Target className="w-6 h-6 text-golden" />
+          </div>
+          <div>
+            <h3 className="font-bold text-foreground">Progress</h3>
+            <p className="text-sm text-muted-foreground">Keep unlocking lessons!</p>
+          </div>
+        </div>
+        {/* Show progress bar based on lessons completed vs total lessons (5) */}
+        <Progress value={(progress.completedLessons.length / 5) * 100} className="h-3 bg-muted" />
+        <p className="text-sm text-muted-foreground mt-2">{progress.completedLessons.length} lessons complete</p>
+      </CardContent>
+    </Card>
+  )
 };
 
 const StatsCards = () => {
@@ -235,38 +235,22 @@ const QuickActions = () => (
       </Card>
     </Link>
 
-    <Link to="/lectures">
+    <Link to="/test-session">
       <Card className="bg-card hover:bg-muted transition-colors border-0 shadow-card rounded-2xl cursor-pointer">
         <CardContent className="p-5 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
-            <Star className="w-6 h-6 text-accent" />
+          <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
+            <div className="text-2xl">🧪</div>
           </div>
           <div className="flex-1">
-            <h3 className="font-bold text-foreground">Browse All Lectures</h3>
-            <p className="text-sm text-muted-foreground">Explore available lessons</p>
-          
+            <h3 className="font-bold text-foreground">Take Test</h3>
+            <p className="text-sm text-muted-foreground">
+              Test your pronunciation
+            </p>
           </div>
           <ChevronRight className="w-6 h-6 text-muted-foreground" />
         </CardContent>
       </Card>
     </Link>
-    <Link to="/test-session">
-  <Card className="bg-card hover:bg-muted transition-colors border-0 shadow-card rounded-2xl cursor-pointer">
-    <CardContent className="p-5 flex items-center gap-4">
-      <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
-        🧪
-      </div>
-      <div className="flex-1">
-        <h3 className="font-bold text-foreground">Take Test</h3>
-        <p className="text-sm text-muted-foreground">
-          Test your pronunciation
-        </p>
-      </div>
-      <ChevronRight className="w-6 h-6 text-muted-foreground" />
-    </CardContent>
-  </Card>
-</Link>
-
   </div>
 );
 
@@ -278,13 +262,11 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-6">
         <div className="max-w-5xl mx-auto">
           <div className="grid lg:grid-cols-3 gap-6">
-            {/* Main Content - Left Side */}
             <div className="lg:col-span-2 space-y-6">
               <WelcomeSection />
               <LearningPath />
             </div>
 
-            {/* Sidebar - Right Side */}
             <div className="space-y-6">
               <DailyGoal />
               <StatsCards />

@@ -6,8 +6,8 @@ dotenv.config();
 const poolConfig: PoolConfig = {
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "5432"),
-  database: process.env.DB_NAME || "sanskrit_setu",
-  user: process.env.DB_USER || "postgres",
+  database: process.env.DB_NAME || "mydatabase",
+  user: process.env.DB_USER || "kavya",
 };
 
 // Only add password if it's provided in env (allows for peer authentication)

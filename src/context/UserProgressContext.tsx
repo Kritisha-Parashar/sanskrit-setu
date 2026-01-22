@@ -3,20 +3,29 @@ import { isAuthenticated, getProgress, updateProgress } from "@/lib/auth";
 
 interface UserProgress {
   xp: number;
-  completedLessons: number[];
-  unlockedLessons: number[];
+  completedLessons: string[];   
+  unlockedLessons: string[];    
 }
 
 interface UserProgressContextType {
   progress: UserProgress;
-  completeLesson: (lessonId: number, score: number) => void;
-  startGuestSession: () => void; // For Index page
-  loginUser: () => void;         // For Login page
-  logoutUser: () => void;        // For Settings page
+  completeLesson: (
+    lessonId: string,
+    score: number,
+    orderedLessonIds: string[]
+  ) => void;
+  startGuestSession: () => void;
+  loginUser: () => void;
+  logoutUser: () => void;
   isLoggedIn: boolean;
 }
 
-const UserProgressContext = createContext<UserProgressContextType | undefined>(undefined);
+/* ---------------- CONTEXT ---------------- */
+
+const UserProgressContext =
+  createContext<UserProgressContextType | undefined>(undefined);
+
+/* ---------------- PROVIDER ---------------- */
 
 export const UserProgressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // 1. Check if we are in "User Mode" (Logged in) - use auth token
@@ -31,7 +40,6 @@ export const UserProgressProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setIsLoggedIn(authenticated);
     };
 
-    // Check on mount and periodically
     checkAuth();
     const interval = setInterval(checkAuth, 1000);
     return () => clearInterval(interval);
@@ -39,8 +47,25 @@ export const UserProgressProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // 2. Initialize Progress
   const [progress, setProgress] = useState<UserProgress>(() => {
-    // Start with default for guest mode
-    return { xp: 0, completedLessons: [], unlockedLessons: [1] };
+    // If logged in, try to load from local storage first (backup), else default
+    // If GUEST (not logged in), ALWAYS start fresh (default)
+    if (isAuthenticated()) {
+        const saved = localStorage.getItem("sanskritUserProgress");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            const unlocked = parsed.unlockedLessons || [];
+            if (!unlocked.includes('LS001')) {
+              parsed.unlockedLessons = ['LS001', ...unlocked];
+            }
+            return parsed;
+          } catch {
+            return { xp: 0, completedLessons: [], unlockedLessons: ["LS001"] };
+          }
+        }
+    }
+    // Guest mode or no saved data -> Default
+    return { xp: 0, completedLessons: [], unlockedLessons: ["LS001"] };
   });
 
   // 3. Load progress from API when logged in
@@ -51,128 +76,140 @@ export const UserProgressProvider: React.FC<{ children: React.ReactNode }> = ({ 
           const apiProgress = await getProgress();
           if (apiProgress) {
             console.log("Loaded progress from API:", apiProgress);
-            setProgress(apiProgress);
+            let unlockedLessons = (apiProgress.unlockedLessons || []).map(String);
+            // ALWAYS ensure LS001 is unlocked
+            if (!unlockedLessons.includes('LS001')) {
+              unlockedLessons.unshift('LS001');
+            }
+            
+            const normalizedProgress: UserProgress = {
+              ...apiProgress,
+              completedLessons: (apiProgress.completedLessons || []).map(String),
+              unlockedLessons: unlockedLessons,
+            };
+            setProgress(normalizedProgress);
           } else {
             // If no progress exists, initialize with defaults
-            const defaultProgress = { xp: 0, completedLessons: [], unlockedLessons: [1] };
+            const defaultProgress: UserProgress = { xp: 0, completedLessons: [], unlockedLessons: ["LS001"] };
             setProgress(defaultProgress);
             await updateProgress(defaultProgress);
           }
         } catch (error) {
           console.error("Failed to load progress from API:", error);
-          // Fallback to localStorage if API fails
-          const saved = localStorage.getItem("sanskritUserProgress");
-          if (saved) {
-            setProgress(JSON.parse(saved));
-          }
         }
       }
+      // If Guest, we do NOTHING here (keep the default state from init)
     };
 
     loadProgressFromAPI();
   }, [isLoggedIn]);
 
-  // 4. Save to API when progress changes (if logged in)
+  // 4. Save to API/Local when progress changes
   useEffect(() => {
     const saveProgressToAPI = async () => {
       if (isLoggedIn) {
+        // User Mode: Save to API and LocalStorage
         try {
           const success = await updateProgress(progress);
-          if (success) {
-            console.log("Progress saved to database:", progress);
-            // Also save to localStorage as backup
-            localStorage.setItem("sanskritUserProgress", JSON.stringify(progress));
-          } else {
-            console.warn("Failed to save progress to API, saving to localStorage only");
-            localStorage.setItem("sanskritUserProgress", JSON.stringify(progress));
-          }
+          if (!success) console.warn("Failed to save to API");
         } catch (error) {
           console.error("Error saving progress:", error);
-          // Fallback to localStorage
-          localStorage.setItem("sanskritUserProgress", JSON.stringify(progress));
         }
-      } else {
-        // Guest mode: only save to localStorage
         localStorage.setItem("sanskritUserProgress", JSON.stringify(progress));
+      } else {
+        // Guest Mode: DO NOT SAVE to localStorage (Progress resets on refresh)
+        // We intentionally do nothing here.
       }
     };
 
-    // Debounce API calls - only save after user stops making changes
     const timeoutId = setTimeout(saveProgressToAPI, 500);
     return () => clearTimeout(timeoutId);
   }, [progress, isLoggedIn]);
 
-  const completeLesson = (lessonId: number, score: number) => {
+  /* ---------------- COMPLETE LESSON ---------------- */
+
+  const completeLesson = (
+    lessonId: string,
+    score: number,
+    orderedLessonIds: string[]
+  ) => {
     if (score < 75) return;
 
-    const isReplay = progress.completedLessons.includes(lessonId);
-    const xpGained = isReplay ? 10 : 50;
-    const nextLessonId = lessonId + 1;
-
     setProgress((prev) => {
-      const newUnlocked = prev.unlockedLessons.includes(nextLessonId) 
-        ? prev.unlockedLessons 
-        : [...prev.unlockedLessons, nextLessonId];
+      // XP Logic: Check if already completed
+      const isReplay = prev.completedLessons.includes(lessonId);
+      const xpGained = isReplay ? 0 : 50; // 0 if replay, 50 if new
+
+      // find current lesson index
+      const currentIndex = orderedLessonIds.indexOf(lessonId);
+      const nextLessonId = orderedLessonIds[currentIndex + 1];
+
+      const newUnlockedLessons = nextLessonId
+        ? prev.unlockedLessons.includes(nextLessonId)
+          ? prev.unlockedLessons
+          : [...prev.unlockedLessons, nextLessonId]
+        : prev.unlockedLessons;
 
       return {
         xp: prev.xp + xpGained,
-        completedLessons: isReplay ? prev.completedLessons : [...prev.completedLessons, lessonId],
-        unlockedLessons: newUnlocked,
+        completedLessons: isReplay
+          ? prev.completedLessons
+          : [...prev.completedLessons, lessonId],
+        unlockedLessons: newUnlockedLessons,
       };
     });
   };
 
-  // Called when clicking "Start Learning" on Index
+  /* ---------------- SESSION HANDLERS ---------------- */
+
   const startGuestSession = () => {
     setIsLoggedIn(false);
-    localStorage.removeItem("isLoggedIn"); // Remove persistent flag
-    setProgress({ xp: 0, completedLessons: [], unlockedLessons: [1] }); // Force reset
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("sanskritUserProgress"); // Clear any stale data
+    setProgress({
+      xp: 0,
+      completedLessons: [],
+      unlockedLessons: ["LS001"],
+    });
   };
 
-  // Called when Login is successful
   const loginUser = async () => {
     setIsLoggedIn(true);
-    // Progress will be loaded from API via useEffect
-    // Try to load from API first, fallback to localStorage
-    try {
-      const apiProgress = await getProgress();
-      if (apiProgress) {
-        setProgress(apiProgress);
-      } else {
-        // If no API progress, check localStorage and sync to API
-        const saved = localStorage.getItem("sanskritUserProgress");
-        if (saved) {
-          const localProgress = JSON.parse(saved);
-          setProgress(localProgress);
-          await updateProgress(localProgress);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading progress on login:", error);
-      // Fallback to localStorage
-      const saved = localStorage.getItem("sanskritUserProgress");
-      if (saved) {
-        setProgress(JSON.parse(saved));
-      }
-    }
+    // Data load triggered by useEffect [isLoggedIn]
   };
 
-  // Called on Logout
   const logoutUser = () => {
     setIsLoggedIn(false);
     localStorage.removeItem("isLoggedIn");
-    setProgress({ xp: 0, completedLessons: [], unlockedLessons: [1] });
+    localStorage.removeItem("sanskritUserProgress");
+    setProgress({
+      xp: 0,
+      completedLessons: [],
+      unlockedLessons: ["LS001"],
+    });
   };
 
   return (
-    <UserProgressContext.Provider value={{ progress, completeLesson, startGuestSession, loginUser, logoutUser, isLoggedIn }}>
+    <UserProgressContext.Provider
+      value={{
+        progress,
+        completeLesson,
+        startGuestSession,
+        loginUser,
+        logoutUser,
+        isLoggedIn,
+      }}
+    >
       {children}
     </UserProgressContext.Provider>
   );
 };
 
+/* ---------------- HOOK ---------------- */
+
 export const useUserProgress = () => {
   const context = useContext(UserProgressContext);
-  if (!context) throw new Error("useUserProgress must be used within UserProgressProvider");
+  if (!context)
+    throw new Error("useUserProgress must be used within UserProgressProvider");
   return context;
 };
