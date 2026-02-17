@@ -8,7 +8,7 @@ export interface AuthRequest extends Request {
   userRole?: string;
 }
 
-export const authenticateToken = (
+export const authenticateToken = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -22,13 +22,38 @@ export const authenticateToken = (
 
   const jwtSecret = process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
-  jwt.verify(token, jwtSecret, (err: any, decoded: any) => {
+  jwt.verify(token, jwtSecret, async (err: any, decoded: any) => {
     if (err) {
       return res.status(403).json({ error: "Invalid or expired token" });
     }
 
     req.userId = decoded.userId;
     req.userEmail = decoded.email;
+    
+    // Fetch user role from database
+    try {
+      const userResult = await pool.query(
+        "SELECT role FROM users WHERE id = $1",
+        [decoded.userId]
+      );
+      if (userResult.rows.length > 0) {
+        req.userRole = userResult.rows[0].role;
+      }
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+    }
+    
     next();
   });
+};
+
+export const requireAdmin = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.userRole !== "admin") {
+    return res.status(403).json({ error: "Admin access required" });
+  }
+  next();
 };

@@ -12,6 +12,7 @@ const signupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   name: z.string().optional(),
+  role: z.enum(["student", "admin"]).optional().default("student"),
 });
 
 const loginSchema = z.object({
@@ -40,9 +41,9 @@ router.post("/signup", async (req, res) => {
   try {
     console.log("Signup request received:", { body: req.body });
     
-    const { email, password, name } = signupSchema.parse(req.body);
+    const { email, password, name, role } = signupSchema.parse(req.body);
     
-    console.log("Signup attempt for email:", email);
+    console.log("Signup attempt for email:", email, "role:", role);
 
     // Start transaction
     await client.query("BEGIN");
@@ -63,21 +64,23 @@ router.post("/signup", async (req, res) => {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create user
+    // Create user with role
     const result = await client.query(
-      "INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id, email, name, role",
-      [email, passwordHash, name || email.split("@")[0]]
+      "INSERT INTO users (email, password_hash, name, role) VALUES ($1, $2, $3, $4) RETURNING id, email, name, role",
+      [email, passwordHash, name || email.split("@")[0], role || "student"]
     );
 
     const user = result.rows[0];
-    console.log("User created with ID:", user.id);
+    console.log("User created with ID:", user.id, "role:", user.role);
 
-    // Create user progress entry with first lesson unlocked
-    await client.query(
-      "INSERT INTO user_progress (user_id, xp, completed_lessons, unlocked_lessons) VALUES ($1, $2, $3, $4)",
-      [user.id, 0, [], ['LS001']]
-    );
-    console.log("User progress created for user ID:", user.id);
+    // Create user progress entry with first lesson unlocked (only for students)
+    if (user.role === "student") {
+      await client.query(
+        "INSERT INTO user_progress (user_id, xp, completed_lessons, unlocked_lessons) VALUES ($1, $2, $3, $4)",
+        [user.id, 0, [], ['LS001']]
+      );
+      console.log("User progress created for user ID:", user.id);
+    }
 
     // Commit transaction
     await client.query("COMMIT");

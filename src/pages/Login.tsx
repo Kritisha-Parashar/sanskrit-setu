@@ -218,6 +218,26 @@ const Login = () => {
                 {isLogin ? "Sign up for free" : "Log In"}
               </button>
             </p>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-card px-4 text-sm text-muted-foreground">
+                  Admin Access
+                </span>
+              </div>
+            </div>
+
+            <Link to="/admin/login">
+              <Button
+                variant="outline"
+                className="w-full h-12 rounded-2xl border-2 border-primary/30 bg-card hover:bg-primary/5 text-primary font-semibold"
+              >
+                Login as Admin
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
