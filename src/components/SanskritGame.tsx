@@ -91,7 +91,9 @@ const SanskritGame = () => {
       let missedCorrect = false;
 
       for (const w of fallingWordsRef.current) {
-        w.y += w.speed * dt;
+        const difficultyMultiplier = Math.min(1 + score * 0.05, 2.0);
+        w.y += w.speed * difficultyMultiplier * dt;
+
         
         // Update Word DOM directly
         const el = document.getElementById(`word-${w.id}`);
@@ -198,7 +200,9 @@ const SanskritGame = () => {
       {/* PLAYER */}
       <div
         id="player-monkey"
-        className="absolute bottom-10 z-10 w-32 h-32 transition-none"
+        className="absolute bottom-10 z-10 w-40 h-40 transition-none
+                  drop-shadow-[0_0_20px_rgba(255,215,0,0.8)]"
+
         style={{
           left: `${playerXRef.current}%`,
           transform: "translateX(-50%)",

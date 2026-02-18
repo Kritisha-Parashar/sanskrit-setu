@@ -3,6 +3,8 @@ import App from "./App.tsx";
 import "./index.css";
 import { getTestSession, createTestSession } from "./lib/testSession";
 
+
+
 if (!getTestSession()) {
   createTestSession();
 }

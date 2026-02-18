@@ -1,54 +1,63 @@
-import { Trophy, Star } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
 
 interface GameOverProps {
   score: number;
   onPlayAgain: () => void;
   isWin?: boolean;
 }
-const GameOver = ({ score, onPlayAgain, isWin = false }: GameOverProps) => {
+
+const GameOver = ({ score, onPlayAgain }: GameOverProps) => {
   const navigate = useNavigate();
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-8 relative z-10">
-      <h1 className={`font-pixel text-5xl md:text-6xl tracking-wider ${isWin ? "text-accent glow-accent" : "text-game-over glow-red"}`}>
-        {isWin ? "You Win!" : "Game Over"}
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-black text-white overflow-hidden">
+      
+      <div className="absolute inset-0 bg-[radial-gradient(white_1px,transparent_1px)] [background-size:40px_40px] opacity-20" />
+
+      <h1 className="text-6xl md:text-5xl font-pixel text-orange-600 tracking-widest mb-12 z-10">
+        GAME OVER
       </h1>
 
-      <div className="border border-border rounded-xl p-8 flex flex-col items-center gap-4 glow-box-primary bg-card/60 backdrop-blur-sm min-w-[220px]">
-        {isWin ? (
-          <Star className="w-14 h-14 text-accent glow-accent fill-accent" />
-        ) : (
-          <Trophy className="w-14 h-14 text-accent glow-accent" />
-        )}
-        <p className="text-muted-foreground font-orbitron text-sm">Your Score</p>
-        <p className="text-5xl font-bold text-accent glow-accent font-orbitron">{score}</p>
+      <div className="z-10 bg-[#0f172a]/80 backdrop-blur-md border border-gray-700 rounded-3xl px-16 py-14 flex flex-col items-center shadow-[0_0_40px_rgba(255,215,0,0.4)]">
+        <Trophy className="w-14 h-14 text-yellow-400 mb-4" />
+
+        <p className="text-gray-400 text-sm tracking-wide mb-2">
+          Your Score
+        </p>
+
+        <p className="text-6xl font-bold text-yellow-400 drop-shadow-[0_0_15px_rgba(255,215,0,0.8)]">
+          {score}
+        </p>
       </div>
 
-      <button
-        onClick={onPlayAgain}
-        className="font-pixel text-lg px-10 py-4 rounded-xl bg-primary text-primary-foreground glow-box-primary hover:scale-105 transition-transform tracking-widest uppercase"
-      >
-        Play Again
-      </button>
-      <div className="flex justify-between items-center mb-6">
-      <button
-        onClick={() => {
-          try {
-            navigate("/dashboard"); // change if your learner dashboard path is different
-          } catch (err) {
-            console.error("Return navigation failed:", err);
-          }
-        }}
-        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted hover:bg-muted/70 transition"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Return to Learning
-      </button>
-</div>
+      <div className="z-10 mt-12 flex flex-col gap-6 w-64">
+        <button
+          onClick={onPlayAgain}
+          className="w-full py-3 text-sm font-pixel 
+                     bg-[#388e8f] hover:bg-[#2f7a7b]
+                     text-white 
+                     rounded-xl
+                     transition-all duration-200"
+        >
+          PLAY AGAIN
+        </button>
+
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="w-full py-3 text-sm font-pixel 
+                     bg-[#388e8f] hover:bg-[#2f7a7b]
+                     text-white 
+                     rounded-xl
+                     transition-all duration-200"
+        >
+          EXIT GAME
+        </button>
+      </div>
 
     </div>
   );
 };
 
 export default GameOver;
+
