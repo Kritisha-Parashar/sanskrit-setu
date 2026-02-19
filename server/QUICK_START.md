@@ -1,6 +1,6 @@
 # Quick Start Guide - Database Setup
 
-## 🚀 Fast Setup (3 Steps)
+##Setup (3 Steps)
 
 ### 1. Create .env file
 ```bash

@@ -146,6 +146,28 @@ export const isAuthenticated = (): boolean => {
   return !!localStorage.getItem("authToken");
 };
 
+export const isAdmin = (): boolean => {
+  const userStr = localStorage.getItem("user");
+  if (!userStr) return false;
+  try {
+    const user = JSON.parse(userStr);
+    return user.role === "admin";
+  } catch {
+    return false;
+  }
+};
+
+export const getCurrentUserRole = (): "student" | "admin" | null => {
+  const userStr = localStorage.getItem("user");
+  if (!userStr) return null;
+  try {
+    const user = JSON.parse(userStr);
+    return user.role || "student";
+  } catch {
+    return null;
+  }
+};
+
 // Progress API functions
 export interface UserProgress {
   xp: number;

@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth";
 import progressRoutes from "./routes/progress";
 import lessonsRoutes from "./routes/lessons";
 import diagnosticsRoutes from "./routes/diagnostics";
+import adminRoutes from "./routes/admin";
 import { initializeDatabase } from "./db/init";
 
 dotenv.config();
@@ -49,6 +50,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api", lessonsRoutes);
 app.use("/api", diagnosticsRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {
