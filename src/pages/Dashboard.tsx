@@ -5,9 +5,13 @@ import { Progress } from "@/components/ui/progress";
 import { Flame, Trophy, BookOpen, Star, ChevronRight, Settings, User, Zap, Crown, Target, Lock } from "lucide-react";
 import InteractiveMascot from "@/components/InteractiveMascot";
 import { useUserProgress } from "@/context/UserProgressContext";
+import { Gamepad2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 
 const DashboardNavbar = () => {
   const { progress } = useUserProgress();
+  const navigate = useNavigate();
 
   return (
     <nav className="bg-primary-dark sticky top-0 z-50">
@@ -19,6 +23,20 @@ const DashboardNavbar = () => {
         <div className="flex items-center gap-4">
           {/* Stats Bar */}
           <div className="hidden md:flex items-center gap-4 bg-primary/30 rounded-2xl px-4 py-2">
+          <button
+            onClick={() => {
+              try {
+                navigate("/game");
+              } catch (err) {
+                console.error("Navigation error:", err);
+              }
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+          >
+            <Gamepad2 className="w-5 h-5" />
+            <span className="hidden sm:inline">Start Game!</span>
+          </button>
+
             <div className="flex items-center gap-2 text-accent">
               <Flame className="w-5 h-5" />
               <span className="font-bold text-primary-foreground">1</span>

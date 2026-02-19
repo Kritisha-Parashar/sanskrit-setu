@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         sans: ["Nunito", "system-ui", "sans-serif"],
         display: ["Playfair Display", "Georgia", "serif"],
+        pixel: ['"Press Start 2P"', "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
