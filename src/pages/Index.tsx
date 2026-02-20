@@ -113,7 +113,7 @@ const HeroSection = () => {
               />
               <div className="absolute -bottom-4 -left-8">
                 <InteractiveMascot 
-                  mood="happy" 
+                  mood="celebrate" 
                   size="lg"
                   showHeart
                   messages={[
@@ -225,7 +225,7 @@ const Footer = () => (
         </div>
         <p className="text-primary-foreground/70 text-sm">
           © 2026 Sanskrit-Setu. Bridge to Ancient Wisdom.
-        </p>
+        </p >
       </div>
     </div>
   </footer>

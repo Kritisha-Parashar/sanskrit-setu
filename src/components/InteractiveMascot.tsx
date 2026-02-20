@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import Lottie from "lottie-react";
+import astronautFlying from "@/assets/mascot/astronaut-flying.json";
 import mascotHappy from "@/assets/mascot-happy.png";
 import mascotSad from "@/assets/mascot-sad.png";
 import mascotCelebrate from "@/assets/mascot-celebrate.png";
+
+
 
 type MascotMood = "happy" | "sad" | "celebrate" | "thinking";
 
@@ -21,10 +25,17 @@ interface InteractiveMascotProps {
   showHeart?: boolean;
 }
 
-const mascotImages: Record<MascotMood, string> = {
-  happy: mascotHappy,
+const mascotAnimations: Record<MascotMood, any> = {
+  happy: astronautFlying,
+  sad: null,
+  celebrate: null,
+  thinking: null,
+};
+const mascotImages: Record<MascotMood, any> = {
+  happy: astronautFlying,
   sad: mascotSad,
-  celebrate: mascotCelebrate,
+  celebrate:
+    mascotCelebrate,
   thinking: mascotHappy,
 };
 
@@ -71,10 +82,10 @@ const InteractiveMascot = ({
     setIsClicked(true);
     setCurrentMessage(messages[messageIndex]);
     setMessageIndex((prev) => (prev + 1) % messages.length);
-    
+
     setTimeout(() => setIsClicked(false), 300);
     setTimeout(() => setCurrentMessage(null), 2500);
-    
+
     onClick?.();
   };
 
@@ -115,17 +126,28 @@ const InteractiveMascot = ({
           isClicked && "scale-95 rotate-3"
         )}
       >
-        <img
-          src={mascotImages[mood]}
-          alt="Mascot"
-          className={cn(
-            "w-full h-full object-contain drop-shadow-lg transition-transform duration-300",
-            mood === "happy" && "animate-bounce-gentle",
-            mood === "celebrate" && "animate-float",
-            isHovered && "drop-shadow-2xl"
-          )}
-        />
-        
+        {mood === "happy" ? (
+          <Lottie
+            animationData={mascotAnimations[mood]}
+            loop
+            autoplay
+            className={cn(
+              "w-full h-full drop-shadow-lg transition-transform duration-300",
+              isHovered && "drop-shadow-2xl"
+            )}
+          />
+        ) : (
+          <img
+            src={mascotImages[mood]}
+            alt="Mascot"
+            className={cn(
+              "w-full h-full object-contain drop-shadow-lg transition-transform duration-300",
+              mood === "celebrate" && "animate-float",
+              isHovered && "drop-shadow-2xl"
+            )}
+          />
+        )}
+
         {/* Glow effect on hover */}
         <div
           className={cn(
