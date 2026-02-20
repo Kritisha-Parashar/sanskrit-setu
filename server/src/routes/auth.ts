@@ -12,6 +12,7 @@ const signupSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   name: z.string().optional(),
+  username: z.string().min(1, "Username is required").max(255).optional(),
   role: z.enum(["student", "admin"]).optional().default("student"),
 });
 
@@ -41,7 +42,7 @@ router.post("/signup", async (req, res) => {
   try {
     console.log("Signup request received:", { body: req.body });
     
-    const { email, password, name, role } = signupSchema.parse(req.body);
+    const { email, password, name, username, role } = signupSchema.parse(req.body);
     
     console.log("Signup attempt for email:", email, "role:", role);
 
@@ -64,10 +65,12 @@ router.post("/signup", async (req, res) => {
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Create user with role
+    const displayName = name || email.split("@")[0];
+    const userName = (username && username.trim()) ? username.trim() : displayName;
+    // Create user with role and username
     const result = await client.query(
-      "INSERT INTO users (email, password_hash, name, role) VALUES ($1, $2, $3, $4) RETURNING id, email, name, role",
-      [email, passwordHash, name || email.split("@")[0], role || "student"]
+      "INSERT INTO users (email, password_hash, name, username, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, name, username, role",
+      [email, passwordHash, displayName, userName, role || "student"]
     );
 
     const user = result.rows[0];
@@ -118,6 +121,7 @@ router.post("/signup", async (req, res) => {
         id: user.id.toString(),
         email: user.email,
         name: user.name,
+        username: user.username || user.name || email.split("@")[0],
         role: user.role,
       },
     });
@@ -170,7 +174,7 @@ router.post("/login", async (req, res) => {
 
     // Find user
     const result = await pool.query(
-      "SELECT id, email, password_hash, name, role FROM users WHERE email = $1",
+      "SELECT id, email, password_hash, name, username, role FROM users WHERE email = $1",
       [email]
     );
 
@@ -219,6 +223,7 @@ router.post("/login", async (req, res) => {
         id: user.id.toString(),
         email: user.email,
         name: user.name,
+        username: user.username || user.name || email.split("@")[0],
         role: user.role,
       },
     });
@@ -253,7 +258,7 @@ router.post("/login", async (req, res) => {
 router.get("/me", authenticateToken, async (req: AuthRequest, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, email, name, role FROM users WHERE id = $1",
+      "SELECT id, email, name, username, role FROM users WHERE id = $1",
       [req.userId]
     );
 
@@ -267,6 +272,7 @@ router.get("/me", authenticateToken, async (req: AuthRequest, res) => {
         id: user.id.toString(),
         email: user.email,
         name: user.name,
+        username: user.username || user.name || user.email.split("@")[0],
         role: user.role,
       },
     });
@@ -314,7 +320,7 @@ router.post("/refresh", async (req, res) => {
 
     // Get user details
     const userResult = await pool.query(
-      "SELECT id, email, name, role FROM users WHERE id = $1",
+      "SELECT id, email, name, username, role FROM users WHERE id = $1",
       [userId]
     );
 
@@ -361,6 +367,7 @@ router.post("/refresh", async (req, res) => {
         id: user.id.toString(),
         email: user.email,
         name: user.name,
+        username: user.username || user.name || user.email.split("@")[0],
         role: user.role,
       },
     });

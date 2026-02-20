@@ -429,9 +429,9 @@ const LessonPlayer = () => {
             <Card variant="elevated" className="h-full overflow-hidden flex flex-col">
               <div className="flex-1 bg-gradient-to-br from-primary/10 to-accent/10 flex flex-col items-center justify-center relative p-6">
                 
-                {/* SMALLER MOUTH CONTAINER (h-48, w-48) */}
+                {/* Teacher figure only - no background, no circle */}
                 <div className="h-48 w-full mb-4 flex justify-center items-center">
-                    <div className="w-48 h-48 bg-card/50 rounded-full shadow-inner p-4 border-4 border-primary/20"> 
+                    <div className="w-48 h-48 flex items-center justify-center">
                         <AnimatedMouth 
                             isSpeaking={isPlaying} 
                             text={(currentLesson?.sanskrit || "") + " " + (currentLesson?.word || "")} 
@@ -440,13 +440,47 @@ const LessonPlayer = () => {
                 </div>
 
                 <h1 className={`${getFontSizeClass()} font-display font-bold text-primary animate-scale-in text-center`}>
-                    {currentLesson?.sanskrit || ""}
+                    {currentLesson?.contentType === "Dialogue" ? (
+
+                    <div className="w-full flex flex-col gap-4 animate-fade-in">
+
+                      {/* Chat bubble */}
+                      <div className="self-start bg-primary text-primary-foreground 
+                                      px-6 py-4 rounded-2xl rounded-bl-none 
+                                      shadow-md max-w-[80%] text-xl font-semibold">
+                        {currentLesson?.sanskrit}
+                      </div>
+
+                      {/* Transliteration below bubble */}
+                      <div className="self-start text-muted-foreground text-sm pl-2">
+                        {currentLesson?.transliteration}
+                      </div>
+
+                    </div>
+
+                  ) : (
+
+                    <>
+                      <h1 className={`${getFontSizeClass()} font-display font-bold text-primary animate-scale-in text-center`}>
+                        {currentLesson?.sanskrit || ""}
+                      </h1>
+
+                      {lessonNumber <= 3 && currentLesson?.word && (
+                        <p className="text-2xl text-foreground/60 mt-4 font-semibold animate-fade-in">
+                          {currentLesson.word}
+                        </p>
+                      )}
+
+                      {lessonNumber > 3 && currentLesson?.transliteration && (
+                        <p className="text-lg text-muted-foreground mt-2">
+                          {currentLesson.transliteration}
+                        </p>
+                      )}
+                    </>
+
+                  )}
+
                 </h1>
-                {lessonNumber <= 3 && currentLesson?.word && (
-                  <p className="text-2xl text-foreground/60 mt-4 font-semibold animate-fade-in">
-                      {currentLesson.word}
-                  </p>
-                )}
                 {lessonNumber > 3 && currentLesson?.transliteration && (
                    <p className="text-lg text-muted-foreground mt-2">{currentLesson.transliteration}</p>
                 )}

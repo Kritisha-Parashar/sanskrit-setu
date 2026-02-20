@@ -9,11 +9,15 @@ export async function initializeDatabase() {
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         name VARCHAR(255),
+        username VARCHAR(255),
         role VARCHAR(50) DEFAULT 'student',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR(255)
+    `).catch(() => {});
 
     // Create refresh_tokens table if it doesn't exist
     await pool.query(`

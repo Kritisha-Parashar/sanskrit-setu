@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Flame, Trophy, BookOpen, Star, ChevronRight, Settings, User, Zap, Crown, Target, Lock } from "lucide-react";
 import InteractiveMascot from "@/components/InteractiveMascot";
 import { useUserProgress } from "@/context/UserProgressContext";
+import { getStoredUser } from "@/lib/auth";
 import { Gamepad2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -72,7 +73,9 @@ const DashboardNavbar = () => {
 };
 
 const WelcomeSection = () => {
-  const { progress } = useUserProgress();
+  const { progress, isLoggedIn } = useUserProgress();
+  const user = getStoredUser();
+  const displayName = isLoggedIn && user ? (user.username || user.name || "Learner") : "Learner";
 
   return (
     <div className="bg-card rounded-3xl shadow-card p-6 flex items-center gap-6">
@@ -89,7 +92,7 @@ const WelcomeSection = () => {
       />
       <div className="flex-1">
         <h2 className="font-display text-2xl font-bold text-foreground mb-1">
-          Welcome back, Learner! 🙏
+          Welcome back, {displayName}! 🙏
         </h2>
         <p className="text-muted-foreground">
           You have earned <span className="text-accent font-bold">{progress.xp} XP</span> today! Keep learning to unlock more.

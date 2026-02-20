@@ -6,11 +6,18 @@ export interface AuthResponse {
     id: string;
     email: string;
     name: string;
+    username: string;
     role: "student" | "admin";
   };
 }
 
-export const signup = async (email: string, password: string, name?: string): Promise<AuthResponse> => {
+export const signup = async (
+  email: string,
+  password: string,
+  name?: string,
+  username?: string,
+  role?: "student" | "admin"
+): Promise<AuthResponse> => {
   try {
     console.log("Signup request to:", `${API_URL}/auth/signup`);
     const response = await fetch(`${API_URL}/auth/signup`, {
@@ -18,7 +25,7 @@ export const signup = async (email: string, password: string, name?: string): Pr
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, password, name, username, role }),
     });
 
     if (!response.ok) {
@@ -140,6 +147,16 @@ export const getCurrentUser = async (): Promise<AuthResponse["user"] | null> => 
 
 export const getAuthToken = (): string | null => {
   return localStorage.getItem("authToken");
+};
+
+export const getStoredUser = (): AuthResponse["user"] | null => {
+  const userStr = localStorage.getItem("user");
+  if (!userStr) return null;
+  try {
+    return JSON.parse(userStr) as AuthResponse["user"];
+  } catch {
+    return null;
+  }
 };
 
 export const isAuthenticated = (): boolean => {
