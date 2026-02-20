@@ -310,3 +310,71 @@
     transform: scale(1);
   }
 }
+
+@keyframes unrollScroll {
+  0%   { transform: scaleY(0.02); clip-path: inset(49% 0 49% 0); }
+  30%  { transform: scaleY(0.25); clip-path: inset(37% 0 37% 0); }
+  70%  { transform: scaleY(0.75); clip-path: inset(12% 0 12% 0); }
+  100% { transform: scaleY(1);    clip-path: inset(0% 0 0% 0); }
+}
+
+@keyframes rodTop {
+  0%   { transform: translateY(0px); }
+  100% { transform: translateY(-198px); }
+}
+
+@keyframes rodBottom {
+  0%   { transform: translateY(0px); }
+  100% { transform: translateY(198px); }
+}
+
+@keyframes fadeInContent {
+  0%   { opacity: 0; transform: scale(0.94); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes monkeySlideIn {
+  0%   { opacity: 0; transform: translateX(320px); }
+  100% { opacity: 1; transform: translateX(0px); }
+}
+
+@keyframes inkUnderline {
+  0%   { width: 0%; opacity: 0; }
+  100% { width: 85%; opacity: 1; }
+}
+
+@keyframes dustFloat {
+  0%   { transform: translate(0px, 0px) rotate(0deg); opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 0.6; }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(360deg); opacity: 0; }
+}
+
+.scroll-parchment {
+  animation: unrollScroll 2.4s cubic-bezier(0.23, 1, 0.32, 1) 0.4s both;
+  transform-origin: center center;
+}
+
+.rod-top {
+  animation: rodTop 2.4s cubic-bezier(0.23, 1, 0.32, 1) 0.4s both;
+}
+
+.rod-bottom {
+  animation: rodBottom 2.4s cubic-bezier(0.23, 1, 0.32, 1) 0.4s both;
+}
+
+.content-reveal {
+  animation: fadeInContent 1.2s ease-out 2.6s both;
+}
+
+.monkey-slide-in {
+  animation: monkeySlideIn 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) 2.4s both;
+}
+
+.ink-underline {
+  animation: inkUnderline 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 3.2s both;
+}
+
+.dust-particle {
+  animation: dustFloat var(--duration) ease-in-out var(--delay) infinite;
+}
