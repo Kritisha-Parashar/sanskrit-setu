@@ -6,7 +6,10 @@ import { Flame, Trophy, BookOpen, Star, ChevronRight, Settings, User, Zap, Crown
 import InteractiveMascot from "@/components/InteractiveMascot";
 import { useUserProgress } from "@/context/UserProgressContext";
 import { Gamepad2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";import { useState, useEffect } from "react";
+import ManuscriptScroll from "@/components/ManuscriptScroll";
+
+
 
 
 const DashboardNavbar = () => {
@@ -273,6 +276,23 @@ const QuickActions = () => (
 );
 
 const Dashboard = () => {
+  const [showIntro, setShowIntro] = useState(false);
+
+  useEffect(() => {
+    const hasSeenIntro = sessionStorage.getItem("hasSeenIntro");
+
+    if (!hasSeenIntro) {
+      setShowIntro(true);
+      sessionStorage.setItem("hasSeenIntro", "true");
+
+      const timer = setTimeout(() => {
+        setShowIntro(false);
+      }, 7200);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardNavbar />
@@ -293,8 +313,12 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
+
+      {/* ADD THIS LINE ONLY */}
+      {showIntro && <ManuscriptScroll />}
     </div>
   );
 };
+
 
 export default Dashboard;
