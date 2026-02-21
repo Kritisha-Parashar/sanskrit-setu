@@ -7,10 +7,15 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   name VARCHAR(255),
+  username VARCHAR(255),
   role VARCHAR(50) DEFAULT 'student',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Add username column if it does not exist (for existing databases)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR(255);
+UPDATE users SET username = COALESCE(name, split_part(email, '@', 1)) WHERE username IS NULL OR username = '';
 
 -- Create user_progress table
 CREATE TABLE IF NOT EXISTS user_progress (

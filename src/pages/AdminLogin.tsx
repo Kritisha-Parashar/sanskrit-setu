@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { login } from "../lib/auth";
+import { login, signup } from "../lib/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, Shield } from "lucide-react";
 
 const AdminLogin = () => {
-  //const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -17,21 +19,27 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setError(null);
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccessMessage(null);
 
-  try {
-    const response = await login(email, password);      //POST request to /api/auth/login with email and password
-
-    if (!response.user || response.user.role !== "admin") {
-      throw new Error("Access denied. Admin privileges required.");
-    }
-
-    navigate("/admin/dashboard");
-  } catch (err: unknown) {
-    setError(err.message || "Invalid credentials");
-  } finally {
+    try {
+      if (isLogin) {
+        const response = await login(email, password);
+        if (!response.user || response.user.role !== "admin") {
+          throw new Error("Access denied. Admin privileges required.");
+        }
+        navigate("/admin/dashboard");
+      } else {
+        await signup(email, password, name || "Admin", username || undefined, "admin");
+        setSuccessMessage("Admin account created. Please log in.");
+        setIsLogin(true);
+        setPassword("");
+      }
+    } catch (err: any) {
+      setError(err.message || "Invalid credentials");
+    } finally {
     setLoading(false);
   }
 };
@@ -67,12 +75,11 @@ const AdminLogin = () => {
           </div>
 
           <h1 className="font-display text-3xl font-bold text-foreground mb-2">
-            Admin Portal
+            {isLogin ? "Admin Portal" : "Admin Signup"}
           </h1>
-          <p className="text-muted-foreground">
-            Access the admin dashboard
+          <p className="text-muted-foreground mb-6">
+            {isLogin ? "Access the admin dashboard" : "Create a new admin account"}
           </p>
-
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {successMessage && (
@@ -84,6 +91,24 @@ const AdminLogin = () => {
                 <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
                   {error}
                 </div>
+              )}
+              
+              {!isLogin && (
+                <>
+                  <Input 
+                    type="text" 
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required={!isLogin}
+                  />
+                  <Input 
+                    type="text" 
+                    placeholder="Name (optional)"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </>
               )}
               
               <Input 
@@ -112,22 +137,25 @@ const AdminLogin = () => {
               </div>
 
               <Button type="submit" disabled={loading} className="w-full h-12">
-                {loading ? "Processing..." : "Log In"}
+                {loading ? "Processing..." : isLogin ? "Log In" : "Create Admin Account"}
               </Button>
 
             </form>
 
-            {/*<div className="mt-6 text-center">
+            <p className="text-center mt-6 text-muted-foreground text-sm">
+              {isLogin ? "Need an admin account? " : "Already have an account? "}
               <button
+                type="button"
                 onClick={() => {
                   setIsLogin(!isLogin);
                   setError(null);
+                  setSuccessMessage(null);
                 }}
-                className="text-sm text-primary hover:underline"
+                className="text-primary font-semibold hover:underline"
               >
-                {isLogin ? "Need an admin account? Sign up" : "Already have an account? Log in"}
+                {isLogin ? "Sign up" : "Log in"}
               </button>
-            </div>*/}
+            </p>
 
             <div className="mt-4 pt-4 border-t border-border">
               <Link to="/login" className="block text-center text-sm text-muted-foreground hover:text-foreground">

@@ -1,199 +1,205 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Flame, Trophy, BookOpen, Zap, Star, Target, Award, LogOut } from "lucide-react";
-import mascotHappy from "@/assets/mascot-happy.png";
-import { useUserProgress } from "@/context/UserProgressContext"; 
-import { logout } from "@/lib/auth"; 
-
-// --- SUB-COMPONENTS ---
-
-const ProfileHeader = ({ level, title }: { level: number, title: string }) => (
-  <Card className="overflow-hidden border-0 shadow-card">
-    <div className="h-24 bg-gradient-to-r from-primary to-primary-dark" />
-    <CardContent className="relative pt-0 pb-6 px-6">
-      <div className="flex flex-col md:flex-row items-center md:items-end gap-4 -mt-12">
-        <div className="w-24 h-24 rounded-full bg-card border-4 border-card flex items-center justify-center shadow-card">
-          <img 
-            src={mascotHappy} 
-            alt="Profile" 
-            className="w-20 h-20 object-contain"
-          />
-        </div>
-        <div className="text-center md:text-left flex-1">
-          <h2 className="font-display text-2xl font-bold text-foreground">Sanskrit Learner</h2>
-          <p className="text-muted-foreground">Level {level} • {title}</p>
-        </div>
-        <Link to="/dashboard">
-          <Button variant="secondary" className="shadow-sm">
-            Back to Learning
-          </Button>
-        </Link>
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const StatsOverview = ({ xp, streak, lessons, badgesCount }: { xp: number, streak: number, lessons: number, badgesCount: number }) => (
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-    {[
-      { label: "Day Streak", value: streak, icon: Flame, color: "text-accent", bg: "bg-accent/10" },
-      { label: "Total XP", value: xp, icon: Zap, color: "text-primary", bg: "bg-primary/10" },
-      { label: "Lessons Done", value: lessons, icon: BookOpen, color: "text-success", bg: "bg-success/10" },
-      { label: "Badges", value: badgesCount, icon: Trophy, color: "text-purple", bg: "bg-purple/10" },
-    ].map((stat, index) => (
-      <Card key={index} className="border-0 shadow-card">
-        <CardContent className="p-6 text-center">
-          <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center mx-auto mb-3`}>
-            <stat.icon className={`w-6 h-6 ${stat.color}`} />
-          </div>
-          <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-          <p className="text-sm text-muted-foreground">{stat.label}</p>
-        </CardContent>
-      </Card>
-    ))}
-  </div>
-);
-
-const LevelProgress = ({ level, progressPercent, lessonsInLevel }: { level: number, progressPercent: number, lessonsInLevel: number }) => (
-  <Card className="border-0 shadow-card">
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2">
-        <Target className="w-5 h-5 text-primary" />
-        Current Level Progress
-      </CardTitle>
-      <CardDescription>Path to Level {level + 1}</CardDescription>
-    </CardHeader>
-    <CardContent className="space-y-6">
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <div>
-            <h4 className="font-semibold text-foreground">Level {level}</h4>
-            <p className="text-sm text-muted-foreground">{lessonsInLevel} / 5 Lessons</p>
-          </div>
-          <span className="text-sm font-semibold text-primary">{Math.round(progressPercent)}%</span>
-        </div>
-        <Progress value={progressPercent} className="h-3" />
-      </div>
-    </CardContent>
-  </Card>
-);
-
-const AchievementsList = ({ achievements }: { achievements: any[] }) => {
-  return (
-    <Card className="border-0 shadow-card">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Trophy className="w-5 h-5 text-accent" />
-          Achievements
-        </CardTitle>
-        <CardDescription>Badges you have unlocked</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {achievements.map((achievement, index) => (
-            <div 
-              key={index}
-              className={`p-4 rounded-xl border text-center transition-all ${
-                achievement.earned 
-                  ? "bg-accent/5 border-accent/20" 
-                  : "bg-muted/50 border-border opacity-50 grayscale"
-              }`}
-            >
-              <div className={`w-12 h-12 rounded-xl mx-auto mb-3 flex items-center justify-center ${
-                achievement.earned ? "bg-accent/10" : "bg-muted"
-              }`}>
-                <achievement.icon className={`w-6 h-6 ${
-                  achievement.earned ? "text-accent" : "text-muted-foreground"
-                }`} />
-              </div>
-              <h4 className="font-semibold text-sm text-foreground mb-1">{achievement.name}</h4>
-              <p className="text-xs text-muted-foreground">{achievement.description}</p>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
+import { 
+  Flame, Trophy, BookOpen, Star, ChevronRight, Settings, 
+  Zap, Crown, GraduationCap, Calendar, Mail, 
+  Edit3, Share2, Award, History, TrendingUp, ArrowLeft, Lock, LogOut
+} from "lucide-react";
+import InteractiveMascot from "@/components/InteractiveMascot";
+import { useUserProgress } from "@/context/UserProgressContext";
+import { getStoredUser } from "@/lib/auth"; // Removed logoutUser from here
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  const { progress, logoutUser } = useUserProgress();
+  // Removed refreshProgress as it's not defined in your context
+  const { progress, isLoggedIn } = useUserProgress();
+  // Inside Profile.tsx
+const { logoutUser } = useUserProgress(); // Use your context function
   const navigate = useNavigate();
-
-  // --- STATS LOGIC ---
-  const lessonsCompleted = progress.completedLessons.length;
-  const xp = progress.xp;
+  const user = getStoredUser();
   
-  // Level Logic: 1 Level = 5 Lessons
-  // Start at Level 1. If 5 lessons done -> Level 2 (0/5)
-  const currentLevel = Math.floor(lessonsCompleted / 5) + 1;
-  const lessonsInCurrentLevel = lessonsCompleted % 5;
-  const currentLevelProgressPercent = (lessonsInCurrentLevel / 5) * 100;
+  const displayName = isLoggedIn && user ? (user.username || user.name || "Scholar") : "Scholar";
+  const userEmail = user?.email || "Sanskrit Learner";
   
-  const userTitle = xp > 500 ? "Scholar" : "Beginner";
-  const streak = 1; 
+  const dynamicBadges = Math.floor(progress.completedLessons.length / 2) + 1;
+  const masteryPercentage = Math.round((progress.completedLessons.length / 5) * 100);
+  const userLevel = Math.floor(progress.xp / 500) + 1;
 
-  // Achievement Logic
-  const achievements = [
-    { name: "First Step", description: "Complete 1 Lesson", icon: Star, earned: lessonsCompleted >= 1 },
-    { name: "Scholar", description: "Earn 100 XP", icon: BookOpen, earned: xp >= 100 },
-    { name: "Master", description: "Complete 5 Lessons", icon: Trophy, earned: lessonsCompleted >= 5 },
-    { name: "On Fire", description: "3 Day Streak", icon: Flame, earned: streak >= 3 },
-    { name: "Dedication", description: "Earn 500 XP", icon: Award, earned: xp >= 500 },
-    { name: "Legend", description: "Complete 20 Lessons", icon: Zap, earned: lessonsCompleted >= 20 },
-  ];
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
-  const earnedBadgesCount = achievements.filter(a => a.earned).length;
-
-  const handleLogout = async () => {
-    try {
-      await logout(); 
-      logoutUser();   
-      navigate("/");
-    } catch (error) {
-      console.error("Logout failed", error);
-    }
+  const handleLogout = () => {
+    // Standard logout logic: clear storage and redirect
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    sessionStorage.clear();
+    window.location.href = "/login"; // Force reload to clear context state
+    logoutUser(); // This now handles the state reset and storage clearing
+    navigate("/"); // Redirect to landing page
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="bg-card border-b border-border sticky top-0 z-50">
-        <div className="container mx-auto px-6 h-16 flex items-center gap-4">
-          <Link to="/dashboard">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
+    <div className="min-h-screen bg-background bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background">
+      <nav className="bg-primary-dark sticky top-0 z-[60] shadow-lg">
+        <div className="max-w-[1440px] mx-auto px-8 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-3 group">
+            <ArrowLeft className="w-5 h-5 text-primary-foreground group-hover:-translate-x-1 transition-transform" />
+            <span className="font-display text-2xl font-bold text-primary-foreground">Back to Learning</span>
           </Link>
-          <h1 className="font-display text-xl font-bold text-foreground">Your Profile</h1>
+          <div className="flex items-center gap-4">
+             <div className="hidden sm:flex items-center gap-2 text-golden bg-white/10 px-4 py-1.5 rounded-full border border-white/10">
+                <Zap className="w-4 h-4 fill-current" />
+                <span className="font-bold text-primary-foreground text-sm">{progress.xp} XP</span>
+             </div>
+             <Link to="/settings">
+                <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/30 rounded-full">
+                  <Settings className="w-5 h-5" />
+                </Button>
+            </Link>
+          </div>
         </div>
-      </header>
-      
-      <main className="container mx-auto px-6 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <ProfileHeader level={currentLevel} title={userTitle} />
+      </nav>
+
+      <main className="max-w-[1440px] mx-auto px-8 py-10">
+        <div className="grid grid-cols-12 gap-10">
           
-          <StatsOverview 
-            xp={xp} 
-            streak={streak} 
-            lessons={lessonsCompleted} 
-            badgesCount={earnedBadgesCount} 
-          />
-          
-          <LevelProgress 
-            level={currentLevel} 
-            progressPercent={currentLevelProgressPercent}
-            lessonsInLevel={lessonsInCurrentLevel}
-          />
-          
-          <AchievementsList achievements={achievements} />
-          
-          {/* LOGOUT BUTTON */}
-          <div className="flex justify-center pt-8 pb-12">
-            <Button variant="destructive" onClick={handleLogout} className="gap-2 px-8 rounded-xl h-12 text-lg">
-              <LogOut className="w-5 h-5" /> Log Out
-            </Button>
+          <aside className="col-span-12 lg:col-span-4 space-y-6">
+            <div className="bg-white/90 backdrop-blur-md rounded-[3rem] p-8 border border-white/50 shadow-xl text-center relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-primary/20 to-purple/20 opacity-30" />
+              
+              <div className="relative z-10">
+                <div className="w-32 h-32 mx-auto bg-white rounded-full p-2 shadow-2xl border-4 border-primary/10 mb-6 group-hover:scale-105 transition-transform duration-500">
+                  <div className="w-full h-full rounded-full bg-muted/30 flex items-center justify-center overflow-hidden">
+                    <InteractiveMascot mood="happy" size="lg" />
+                  </div>
+                </div>
+                
+                <h2 className="text-3xl font-display font-bold text-foreground mb-1">{displayName}</h2>
+                <p className="text-sm font-medium text-muted-foreground mb-6 flex items-center justify-center gap-2">
+                  <Mail className="w-4 h-4 opacity-50" /> {userEmail}
+                </p>
+
+                <div className="flex flex-col gap-3 mb-8">
+                  <Button className="w-full rounded-2xl h-12 bg-primary hover:bg-primary-dark shadow-lg shadow-primary/20 transition-all active:scale-95">
+                    <Edit3 className="w-4 h-4 mr-2" /> Edit Profile
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleLogout}
+                    className="w-full rounded-2xl h-12 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" /> Log Out
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 py-6 border-t border-black/[0.05]">
+                  <div>
+                    <p className="text-xl font-black text-foreground">{progress.xp}</p>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase opacity-60">XP Points</p>
+                  </div>
+                  <div className="border-x border-black/[0.05]">
+                    <p className="text-xl font-black text-foreground">{dynamicBadges}</p>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase opacity-60">Badges</p>
+                  </div>
+                  <div>
+                    <p className="text-xl font-black text-foreground">{userLevel}</p>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase opacity-60">Level</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/50 shadow-lg">
+              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-6 opacity-60">Backend Records</h4>
+              <div className="space-y-4">
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/5">
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                    <GraduationCap className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase opacity-60">Course Track</p>
+                    <p className="text-sm font-bold text-foreground">Sanskrit-Setu Alpha</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-purple/5 border border-purple/5">
+                  <div className="w-10 h-10 bg-purple/10 rounded-xl flex items-center justify-center text-purple">
+                    <Trophy className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase opacity-60">Milestone</p>
+                    <p className="text-sm font-bold text-foreground">Vaidika Beginner</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <div className="col-span-12 lg:col-span-8 space-y-8 pb-20">
+            <div className="bg-white/90 backdrop-blur-md rounded-[3rem] p-10 border border-white/50 shadow-xl relative overflow-hidden">
+               <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -mr-32 -mt-32" />
+               
+               <h3 className="text-2xl font-display font-bold text-foreground mb-8 flex items-center gap-3 relative z-10">
+                 <TrendingUp className="w-6 h-6 text-primary" /> Learning Momentum
+               </h3>
+              
+              <div className="space-y-10 relative z-10">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-sm font-bold text-foreground">Curriculum Mastered</p>
+                      <p className="text-xs font-medium text-muted-foreground">Backend synced: {progress.completedLessons.length} Modules</p>
+                    </div>
+                    <span className="text-3xl font-black text-primary">{masteryPercentage}%</span>
+                  </div>
+                  <Progress value={masteryPercentage} className="h-4 bg-muted rounded-full" />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="p-8 rounded-[2.5rem] bg-accent/5 border border-accent/10 flex items-center gap-6 transition-all hover:shadow-lg hover:shadow-accent/5">
+                    <div className="w-16 h-16 bg-accent rounded-3xl flex items-center justify-center text-white shadow-xl shadow-accent/20">
+                      <Flame className="w-8 h-8 fill-current" />
+                    </div>
+                    <div>
+                      <p className="text-3xl font-black text-foreground">1 Day</p>
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Live Streak</p>
+                    </div>
+                  </div>
+                  <div className="p-8 rounded-[2.5rem] bg-golden/5 border border-golden/10 flex items-center gap-6 transition-all hover:shadow-lg hover:shadow-golden/5">
+                    <div className="w-16 h-16 bg-golden rounded-3xl flex items-center justify-center text-white shadow-xl shadow-golden/20">
+                      <Star className="w-8 h-8 fill-current" />
+                    </div>
+                    <div>
+                      <p className="text-3xl font-black text-foreground">{progress.xp}</p>
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Total Score</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/40 backdrop-blur-sm rounded-[3rem] p-10 border border-white/40 shadow-inner">
+              <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em] mb-10 text-center">Acharya Honors</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
+                {[
+                  { name: "First Steps", icon: Star, color: "text-golden", check: true },
+                  { name: "Vowel Pro", icon: Zap, color: "text-accent", check: progress.completedLessons.includes("LS001") },
+                  { name: "Word Weaver", icon: Crown, color: "text-purple", check: progress.completedLessons.includes("LS004") },
+                  { name: "Grammarian", icon: Award, color: "text-primary", check: progress.completedLessons.length >= 5 },
+                ].map((badge, idx) => (
+                  <div key={idx} className="flex flex-col items-center group">
+                    <div className={`w-24 h-24 rounded-[2.2rem] mb-4 flex items-center justify-center transition-all duration-500 shadow-2xl bg-white border-2 
+                      ${badge.check ? 'border-primary/20 group-hover:rotate-12 group-hover:scale-110' : 'opacity-20 grayscale border-dashed border-muted-foreground/50'}`}>
+                      {badge.check ? <badge.icon className={`w-10 h-10 ${badge.color} fill-current`} /> : <Lock className="w-6 h-6 text-muted-foreground" />}
+                    </div>
+                    <p className={`text-[10px] font-black uppercase tracking-tighter text-center ${badge.check ? 'text-foreground' : 'text-muted-foreground'}`}>{badge.name}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       </main>

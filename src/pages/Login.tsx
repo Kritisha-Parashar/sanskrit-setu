@@ -12,6 +12,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -36,7 +38,7 @@ const Login = () => {
         navigate("/dashboard");
       } else {
         // Signup flow - create account but don't auto-login
-        await signup(email, password);
+        await signup(email, password, name || undefined, username || undefined);
         
         // Show success message and switch to login mode
         setSuccessMessage("Account created successfully! Please log in to continue.");
@@ -126,6 +128,36 @@ const Login = () => {
                 <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-2xl text-sm">
                   {error}
                 </div>
+              )}
+              
+              {!isLogin && (
+                <>
+                  <div>
+                    <Input 
+                      type="text" 
+                      placeholder="Name"
+                      value={username}
+                      onChange={(e) => {
+                        setUsername(e.target.value);
+                        setError(null);
+                      }}
+                      className="h-14 text-base bg-input border-0 rounded-2xl px-5"
+                      required={!isLogin}
+                    />
+                  </div>
+                  <div>
+                    <Input 
+                      type="text" 
+                      placeholder="Surname (optional)"
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        setError(null);
+                      }}
+                      className="h-14 text-base bg-input border-0 rounded-2xl px-5"
+                    />
+                  </div>
+                </>
               )}
               
               <div>
