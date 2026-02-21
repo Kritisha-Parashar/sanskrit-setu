@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { isAuthenticated, getProgress, updateProgress } from "@/lib/auth";
 
 interface UserProgress {
@@ -17,176 +17,126 @@ interface UserProgressContextType {
   startGuestSession: () => void;
   loginUser: () => void;
   logoutUser: () => void;
+  refreshProgress: () => Promise<void>; // Added this to fix red lines
   isLoggedIn: boolean;
 }
 
-/* ---------------- CONTEXT ---------------- */
+const DEFAULT_PROGRESS: UserProgress = { 
+  xp: 0, 
+  completedLessons: [], 
+  unlockedLessons: ["LS001"] 
+};
 
-const UserProgressContext =
-  createContext<UserProgressContextType | undefined>(undefined);
+/* ---------------- CONTEXT ---------------- */
+const UserProgressContext = createContext<UserProgressContextType | undefined>(undefined);
 
 /* ---------------- PROVIDER ---------------- */
-
 export const UserProgressProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 1. Check if we are in "User Mode" (Logged in) - use auth token
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return isAuthenticated();
-  });
+  const [isLoggedIn, setIsLoggedIn] = useState(() => isAuthenticated());
 
   // Monitor auth token changes
   useEffect(() => {
     const checkAuth = () => {
       const authenticated = isAuthenticated();
-      setIsLoggedIn(authenticated);
+      if (authenticated !== isLoggedIn) {
+        setIsLoggedIn(authenticated);
+      }
     };
-
-    checkAuth();
     const interval = setInterval(checkAuth, 1000);
     return () => clearInterval(interval);
-  }, []);
-
-  // 2. Initialize Progress
-  const [progress, setProgress] = useState<UserProgress>(() => {
-    // If logged in, try to load from local storage first (backup), else default
-    // If GUEST (not logged in), ALWAYS start fresh (default)
-    if (isAuthenticated()) {
-        const saved = localStorage.getItem("sanskritUserProgress");
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            const unlocked = parsed.unlockedLessons || [];
-            if (!unlocked.includes('LS001')) {
-              parsed.unlockedLessons = ['LS001', ...unlocked];
-            }
-            return parsed;
-          } catch {
-            return { xp: 0, completedLessons: [], unlockedLessons: ["LS001"] };
-          }
-        }
-    }
-    // Guest mode or no saved data -> Default
-    return { xp: 0, completedLessons: [], unlockedLessons: ["LS001"] };
-  });
-
-  // 3. Load progress from API when logged in
-  useEffect(() => {
-    const loadProgressFromAPI = async () => {
-      if (isLoggedIn) {
-        try {
-          const apiProgress = await getProgress();
-          if (apiProgress) {
-            console.log("Loaded progress from API:", apiProgress);
-            let unlockedLessons = (apiProgress.unlockedLessons || []).map(String);
-            // ALWAYS ensure LS001 is unlocked
-            if (!unlockedLessons.includes('LS001')) {
-              unlockedLessons.unshift('LS001');
-            }
-            
-            const normalizedProgress: UserProgress = {
-              ...apiProgress,
-              completedLessons: (apiProgress.completedLessons || []).map(String),
-              unlockedLessons: unlockedLessons,
-            };
-            setProgress(normalizedProgress);
-          } else {
-            // If no progress exists, initialize with defaults
-            const defaultProgress: UserProgress = { xp: 0, completedLessons: [], unlockedLessons: ["LS001"] };
-            setProgress(defaultProgress);
-            await updateProgress(defaultProgress);
-          }
-        } catch (error) {
-          console.error("Failed to load progress from API:", error);
-        }
-      }
-      // If Guest, we do NOTHING here (keep the default state from init)
-    };
-
-    loadProgressFromAPI();
   }, [isLoggedIn]);
 
-  // 4. Save to API/Local when progress changes
+  // 2. Initialize Progress
+  const [progress, setProgress] = useState<UserProgress>(DEFAULT_PROGRESS);
+
+  // 3. API Sync Function (refreshProgress)
+  const refreshProgress = useCallback(async () => {
+    if (isLoggedIn) {
+      try {
+        const apiProgress = await getProgress();
+        if (apiProgress) {
+          const normalizedProgress: UserProgress = {
+            xp: apiProgress.xp || 0,
+            completedLessons: (apiProgress.completedLessons || []).map(String),
+            unlockedLessons: (apiProgress.unlockedLessons || []).length > 0 
+              ? apiProgress.unlockedLessons.map(String) 
+              : ["LS001"],
+          };
+          if (!normalizedProgress.unlockedLessons.includes('LS001')) {
+            normalizedProgress.unlockedLessons.unshift('LS001');
+          }
+          setProgress(normalizedProgress);
+        }
+      } catch (error) {
+        console.error("Failed to load progress from API:", error);
+      }
+    }
+  }, [isLoggedIn]);
+
+  // Trigger load on login
   useEffect(() => {
-    const saveProgressToAPI = async () => {
-      if (isLoggedIn) {
-        // User Mode: Save to API and LocalStorage
+    if (isLoggedIn) {
+      refreshProgress();
+    } else {
+      // If not logged in, force reset to prevent "Ghost Data"
+      setProgress(DEFAULT_PROGRESS);
+    }
+  }, [isLoggedIn, refreshProgress]);
+
+  // 4. Auto-Save to API/Local
+  useEffect(() => {
+    if (isLoggedIn && progress.xp > 0 || progress.completedLessons.length > 0) {
+      const saveProgress = async () => {
         try {
-          const success = await updateProgress(progress);
-          if (!success) console.warn("Failed to save to API");
+          await updateProgress(progress);
+          localStorage.setItem("sanskritUserProgress", JSON.stringify(progress));
         } catch (error) {
           console.error("Error saving progress:", error);
         }
-        localStorage.setItem("sanskritUserProgress", JSON.stringify(progress));
-      } else {
-        // Guest Mode: DO NOT SAVE to localStorage (Progress resets on refresh)
-        // We intentionally do nothing here.
-      }
-    };
-
-    const timeoutId = setTimeout(saveProgressToAPI, 500);
-    return () => clearTimeout(timeoutId);
+      };
+      const timeoutId = setTimeout(saveProgress, 1000);
+      return () => clearTimeout(timeoutId);
+    }
   }, [progress, isLoggedIn]);
 
-  /* ---------------- COMPLETE LESSON ---------------- */
+  /* ---------------- HANDLERS ---------------- */
 
-  const completeLesson = (
-    lessonId: string,
-    score: number,
-    orderedLessonIds: string[]
-  ) => {
+  const completeLesson = (lessonId: string, score: number, orderedLessonIds: string[]) => {
     if (score < 75) return;
-
     setProgress((prev) => {
-      // XP Logic: Check if already completed
       const isReplay = prev.completedLessons.includes(lessonId);
-      const xpGained = isReplay ? 0 : 50; // 0 if replay, 50 if new
-
-      // find current lesson index
+      const xpGained = isReplay ? 0 : 50;
       const currentIndex = orderedLessonIds.indexOf(lessonId);
       const nextLessonId = orderedLessonIds[currentIndex + 1];
 
-      const newUnlockedLessons = nextLessonId
-        ? prev.unlockedLessons.includes(nextLessonId)
-          ? prev.unlockedLessons
-          : [...prev.unlockedLessons, nextLessonId]
+      const newUnlockedLessons = nextLessonId && !prev.unlockedLessons.includes(nextLessonId)
+        ? [...prev.unlockedLessons, nextLessonId]
         : prev.unlockedLessons;
 
       return {
         xp: prev.xp + xpGained,
-        completedLessons: isReplay
-          ? prev.completedLessons
-          : [...prev.completedLessons, lessonId],
+        completedLessons: isReplay ? prev.completedLessons : [...prev.completedLessons, lessonId],
         unlockedLessons: newUnlockedLessons,
       };
     });
   };
 
-  /* ---------------- SESSION HANDLERS ---------------- */
-
   const startGuestSession = () => {
+    localStorage.clear();
+    sessionStorage.clear();
     setIsLoggedIn(false);
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("sanskritUserProgress"); // Clear any stale data
-    setProgress({
-      xp: 0,
-      completedLessons: [],
-      unlockedLessons: ["LS001"],
-    });
+    setProgress(DEFAULT_PROGRESS);
   };
 
-  const loginUser = async () => {
+  const loginUser = () => {
     setIsLoggedIn(true);
-    // Data load triggered by useEffect [isLoggedIn]
   };
 
   const logoutUser = () => {
+    localStorage.clear(); // Nukes everything
+    sessionStorage.clear();
     setIsLoggedIn(false);
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("sanskritUserProgress");
-    setProgress({
-      xp: 0,
-      completedLessons: [],
-      unlockedLessons: ["LS001"],
-    });
+    setProgress(DEFAULT_PROGRESS); // Hard reset state
   };
 
   return (
@@ -197,6 +147,7 @@ export const UserProgressProvider: React.FC<{ children: React.ReactNode }> = ({ 
         startGuestSession,
         loginUser,
         logoutUser,
+        refreshProgress, // Now provided to all pages
         isLoggedIn,
       }}
     >
@@ -205,11 +156,8 @@ export const UserProgressProvider: React.FC<{ children: React.ReactNode }> = ({ 
   );
 };
 
-/* ---------------- HOOK ---------------- */
-
 export const useUserProgress = () => {
   const context = useContext(UserProgressContext);
-  if (!context)
-    throw new Error("useUserProgress must be used within UserProgressProvider");
+  if (!context) throw new Error("useUserProgress must be used within UserProgressProvider");
   return context;
 };

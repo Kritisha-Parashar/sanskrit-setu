@@ -19,6 +19,7 @@ import Settings from "./pages/Settings";
 import Test from "@/pages/Test";
 import NotFound from "./pages/NotFound";
 import SanskritGame from "./components/SanskritGame";
+import AIScholar from './pages/AIScholar';
 
 
 const queryClient = new QueryClient();
@@ -64,6 +65,9 @@ const App = () => {
 
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
+              
+              {/* AI Scholar Route */}
+              <Route path="/ai-scholar" element={<AIScholar />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
