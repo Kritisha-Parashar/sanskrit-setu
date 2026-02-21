@@ -317,6 +317,7 @@ const Dashboard = () => {
       {/* ADD THIS LINE ONLY */}
       {showIntro && <ManuscriptScroll />}
     </div>
+    
   );
 };
 
