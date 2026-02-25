@@ -378,3 +378,31 @@
 .dust-particle {
   animation: dustFloat var(--duration) ease-in-out var(--delay) infinite;
 }
+/* Gurukul Scoped Theme */
+.gurukul-theme {
+  --background: 36 39% 93%;
+  --foreground: 24 30% 15%;
+
+  --card: 38 44% 96%;
+  --card-foreground: 24 30% 15%;
+
+  --primary: 28 85% 55%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 174 42% 40%;
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 36 25% 86%;
+  --muted-foreground: 24 15% 45%;
+
+  --accent: 174 42% 40%;
+  --accent-foreground: 0 0% 100%;
+
+  --border: 32 25% 82%;
+  --input: 32 25% 82%;
+  --ring: 28 85% 55%;
+
+  --gurukul-gold: 42 78% 60%;
+  --gurukul-dark-brown: 24 30% 15%;
+  --gurukul-success: 145 63% 42%;
+}

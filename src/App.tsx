@@ -20,7 +20,7 @@ import Test from "@/pages/Test";
 import NotFound from "./pages/NotFound";
 import SanskritGame from "./components/SanskritGame";
 import AIScholar from './pages/AIScholar';
-
+import GurukulLesson from "@/components/GurukulLesson"; 
 
 const queryClient = new QueryClient();
 
@@ -50,7 +50,7 @@ const App = () => {
               {/* The List of all Lectures */}
               <Route path="/lectures" element={<Lectures />} />
               
-              {/* The Actual Players*/}
+              {/* The Actual Players */}
               <Route
                 path="/lectures/:lectureId"
                 element={<LessonPlayer />}
@@ -59,15 +59,17 @@ const App = () => {
               {/* Sanskrit Game Route */}
               <Route path="/game" element={<SanskritGame />} />
 
-
               {/* Test Session */}
               <Route path="/test-session" element={<Test />} />
-
-              {/* 404 */}
-              <Route path="*" element={<NotFound />} />
               
               {/* AI Scholar Route */}
               <Route path="/ai-scholar" element={<AIScholar />} />
+
+              {/* Gurukul Lesson Route */}
+              <Route path="/gurukul-lesson" element={<GurukulLesson />} />
+
+              {/* 404 - MUST BE AT THE BOTTOM */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
