@@ -10,9 +10,10 @@ import { useUserProgress } from "@/context/UserProgressContext";
 import { getStoredUser } from "@/lib/auth";
 
 const Settings = () => {
-  const { progress } = useUserProgress();
+  const { progress, resetProgress } = useUserProgress();
   const user = getStoredUser();
   const [isSaving, setIsSaving] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   // Settings state logic
   const [settings, setSettings] = useState({
@@ -26,8 +27,20 @@ const Settings = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  const toggleSetting = (key) => {
+  const toggleSetting = (key: keyof typeof settings) => {
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleResetProgress = async () => {
+    if (!window.confirm("Are you sure? All XP, completed lessons, and unlocked lessons will be reset. Only the first lesson will remain unlocked.")) return;
+    setIsResetting(true);
+    try {
+      const ok = await resetProgress();
+      if (ok) alert("Progress reset successfully. You’re back to the start with only the first lesson unlocked.");
+      else alert("Failed to reset progress. Please try again.");
+    } finally {
+      setIsResetting(false);
+    }
   };
 
   const handleSave = () => {
@@ -177,8 +190,13 @@ const Settings = () => {
                     <p className="text-xs text-destructive/60">Erase all lessons, XP, and badges</p>
                   </div>
                 </div>
-                <Button variant="outline" className="border-destructive/20 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all">
-                  Reset
+                <Button
+                  variant="outline"
+                  onClick={handleResetProgress}
+                  disabled={isResetting}
+                  className="border-destructive/20 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-all"
+                >
+                  {isResetting ? "Resetting..." : "Reset"}
                 </Button>
               </div>
             </div>

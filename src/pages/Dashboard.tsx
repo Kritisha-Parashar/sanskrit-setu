@@ -78,9 +78,7 @@ const Dashboard = () => {
   const dynamicBadges = Math.floor(progress.completedLessons.length / 2) + 1;
 
   useEffect(() => {
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
-    }
+    // Force reset scroll on mount to prevent browser-cached scroll overlap
     window.scrollTo(0, 0);
   }, []);
 
@@ -113,7 +111,7 @@ const Dashboard = () => {
   const handlePrev = () => setCurrentSlide((prev) => (prev === 0 ? (performanceCards.length / 2) - 1 : prev - 1));
 
   return (
-    <div className="min-h-screen bg-background bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background">
+    <div className="relative min-h-screen w-full bg-background bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background overflow-x-hidden">
       <DashboardNavbar />
 
       <main className="max-w-[1440px] mx-auto px-8 py-10">
@@ -257,7 +255,7 @@ const Dashboard = () => {
                   <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
                </Link>
 
-               <Link to="/conversations" className="flex items-center gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-all group border-t border-black/5">
+               <Link to="/gurukul-lesson" className="flex items-center gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-all group border-t border-black/5">
                   <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                     <MessagesSquare className="w-5 h-5 text-blue-600" />
                   </div>
@@ -274,7 +272,6 @@ const Dashboard = () => {
 
       {showIntro && <ManuscriptScroll />}
     </div>
-    
   );
 };
 
