@@ -31,13 +31,16 @@ whisper_model = None
 
 
 def load_models():
-    """Load Whisper model on startup."""
     global whisper_model
-    logger.info("Loading Whisper model (base)...")
+    logger.info("Loading fine-tuned Sanskrit Whisper model...")
     device = "cuda" if torch.cuda.is_available() else "cpu"
     logger.info(f"Using device: {device}")
-    whisper_model = whisper.load_model("base", device=device)
-    logger.info("Whisper model loaded successfully")
+    model_path = "models/whisper_kathbath_final"
+    try:
+        whisper_model = whisper.load_model(model_path, device=device)
+    except:
+        whisper_model = whisper.load_model("base", device=device)
+    logger.info("✅ Model loaded")
 
 
 @asynccontextmanager
