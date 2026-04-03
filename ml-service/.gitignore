@@ -1,0 +1,48 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+MANIFEST
+dist/
+build/
+*.egg-info/
+
+# Models (Whisper downloads)
+*.pth
+*.pt
+models/
+whisper/
+whisper-base/
+whisper-base.en/
+whisper-small/
+whisper-medium/
+whisper-large/
+
+# Audio files and temp
+*.wav
+*.webm
+*.mp3
+tmp_audio/
+temp/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,5 +1,25 @@
+# Dependencies
+node_modules/
+/node_modules
+server/node_modules/
+ml-service/venv/
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+*.war
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+server/.env
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,21 +27,91 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-.env
-
-# Editor directories and files
+# IDE
 .vscode/*
 !.vscode/extensions.json
 .idea
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.hypothesis/
+
+# ML Models and Large Files
+*.pth
+*.pt
+*.ckpt
+model_final.pth
+whisper/
+whisper-base/
+whisper-base.en/
+*.bin
+*.safetensors
+*.onnx
+
+# Audio Files (cache)
+*.wav
+*.webm
+*.mp3
+*.ogg
+*.m4a
+tmp_audio/
+audio_cache/
+
+# Local files
+*.local
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-server/.env
-.env
+
+# Shortcuts (Windows)
+*.lnk

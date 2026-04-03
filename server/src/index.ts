@@ -6,6 +6,7 @@ import progressRoutes from "./routes/progress";
 import lessonsRoutes from "./routes/lessons";
 import diagnosticsRoutes from "./routes/diagnostics";
 import adminRoutes from "./routes/admin";
+import voiceRoutes from "./routes/voice";
 import { initializeDatabase } from "./db/init";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -15,12 +16,14 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,14 +34,15 @@ app.use("/api/progress", progressRoutes);
 app.use("/api", lessonsRoutes);
 app.use("/api", diagnosticsRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/voice", voiceRoutes);
 
 // --- START OF AI SCHOLAR ROUTE ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
-app.post('/api/analyze-sanskrit', async (req, res) => {
+app.post("/api/analyze-sanskrit", async (req, res) => {
   try {
     const { text } = req.body;
-    
+
     // Changing to the newer, more reliable model name
     // If gemini-2.5-flash still gives 404, try "gemini-2.0-flash"
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
@@ -60,23 +64,22 @@ app.post('/api/analyze-sanskrit', async (req, res) => {
 
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
-    
+
     // Safety check to extract JSON if AI adds extra text
-    const startIdx = responseText.indexOf('{');
-    const endIdx = responseText.lastIndexOf('}') + 1;
-    
+    const startIdx = responseText.indexOf("{");
+    const endIdx = responseText.lastIndexOf("}") + 1;
+
     if (startIdx === -1) {
       throw new Error("AI returned invalid data format");
     }
-    
+
     const cleanJson = responseText.substring(startIdx, endIdx);
     res.json(JSON.parse(cleanJson));
-
   } catch (error: any) {
     console.error("AI Analysis Error:", error.message);
-    res.status(500).json({ 
-      error: "AI connection error", 
-      details: error.message 
+    res.status(500).json({
+      error: "AI connection error",
+      details: error.message,
     });
   }
 });
@@ -84,7 +87,9 @@ app.post('/api/analyze-sanskrit', async (req, res) => {
 
 // Health & Test
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
-app.get("/api/test", (req, res) => res.json({ message: "Server is running", port: PORT }));
+app.get("/api/test", (req, res) =>
+  res.json({ message: "Server is running", port: PORT }),
+);
 
 initializeDatabase()
   .then(() => {
