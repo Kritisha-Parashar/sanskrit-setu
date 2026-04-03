@@ -21,10 +21,14 @@
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
 
+    /* Paths */
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+
+    /* Silence deprecation */
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src", "backend/src/config/db.ts"]
 }

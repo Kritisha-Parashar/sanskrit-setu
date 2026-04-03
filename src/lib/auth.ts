@@ -251,3 +251,22 @@ export const updateProgress = async (progress: UserProgress): Promise<boolean> =
     return false;
   }
 };
+
+export const resetProgress = async (): Promise<boolean> => {
+  const token = localStorage.getItem("authToken");
+  if (!token) return false;
+  try {
+    const response = await fetch(`${API_URL}/progress/reset`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      console.error("Failed to reset progress:", response.status);
+      return false;
+    }
+    return true;
+  } catch (error) {
+    console.error("Reset progress error:", error);
+    return false;
+  }
+};

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { isAuthenticated, getProgress, updateProgress } from "@/lib/auth";
+import { isAuthenticated, getProgress, updateProgress, resetProgress as apiResetProgress } from "@/lib/auth";
 
 interface UserProgress {
   xp: number;
@@ -17,7 +17,8 @@ interface UserProgressContextType {
   startGuestSession: () => void;
   loginUser: () => void;
   logoutUser: () => void;
-  refreshProgress: () => Promise<void>; // Added this to fix red lines
+  refreshProgress: () => Promise<void>;
+  resetProgress: () => Promise<boolean>;
   isLoggedIn: boolean;
 }
 
@@ -139,6 +140,16 @@ export const UserProgressProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setProgress(DEFAULT_PROGRESS); // Hard reset state
   };
 
+  const resetProgress = useCallback(async (): Promise<boolean> => {
+    if (isLoggedIn) {
+      const ok = await apiResetProgress();
+      if (!ok) return false;
+    }
+    setProgress(DEFAULT_PROGRESS);
+    localStorage.setItem("sanskritUserProgress", JSON.stringify(DEFAULT_PROGRESS));
+    return true;
+  }, [isLoggedIn]);
+
   return (
     <UserProgressContext.Provider
       value={{
@@ -147,7 +158,8 @@ export const UserProgressProvider: React.FC<{ children: React.ReactNode }> = ({ 
         startGuestSession,
         loginUser,
         logoutUser,
-        refreshProgress, // Now provided to all pages
+        refreshProgress,
+        resetProgress,
         isLoggedIn,
       }}
     >

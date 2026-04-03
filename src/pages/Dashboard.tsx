@@ -179,7 +179,7 @@ const Dashboard = () => {
                     <InteractiveMascot mood="happy" size="lg" showHeart />
                   </div>
                   <div className="text-center md:text-left">
-                    <h2 className="text-4xl font-display font-bold text-foreground mb-2">नमस्ते, {displayName}! 🙏</h2>
+                    <h2 className="text-4xl font-display font-bold text-foreground mb-2">नमस्कारम्, {displayName}! 🙏</h2>
                     <p className="text-muted-foreground text-lg leading-relaxed max-w-sm">
                       Your persistence is the key to mastering Sanskrit. Ready to continue your path?
                     </p>
