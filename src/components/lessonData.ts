@@ -49,7 +49,7 @@ export const lessonScenes: Scene[] = [
       prefix: "स्वा",
       suffix: "म्",
       correctAnswer: "स्वागतम्",
-      placeholder: "___",
+      placeholder: "_____",
     },
   },
   {
@@ -89,7 +89,7 @@ export const lessonScenes: Scene[] = [
     ],
     quiz: {
       type: "multiple-choice",
-      question: "When we greet someone respectfully, we say __.",
+      question: "When we greet someone respectfully, we say ____.",
       options: ["धन्यवाद", "नमस्ते", "शुभरात्रि"],
       correctAnswer: "नमस्ते",
     },
@@ -109,7 +109,7 @@ export const lessonScenes: Scene[] = [
       prefix: "अहं ",
       suffix: " अस्मि।",
       correctAnswer: "विद्यार्थी",
-      placeholder: "___",
+      placeholder: "_______",
     },
   },
 ];

@@ -5,8 +5,8 @@ import monkeySitImg from "@/assets/monkey-sit.png";
 import monkeyCorrectImg from "@/assets/monkey-correct.png";
 import monkeyCryingImg from "@/assets/monkey-crying.png";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react"; // <-- Added icon
-import { Button } from "@/components/ui/button"; // <-- Added UI Button
+
+
 
 // ─── Types ───────────────────────────────────────────────────────────
 interface DialogueStep {
@@ -49,7 +49,7 @@ const scenes: Scene[] = [
     question: {
       type: "fill",
       prompt: "In Sanskrit, how do we say Welcome?",
-      blankDisplay: "स्वा___म्",
+      blankDisplay: "स्वा_____म्",
       options: ["गतम्", "गतः", "गता"],
       correctAnswer: "गतम्",
     },
@@ -71,7 +71,7 @@ const scenes: Scene[] = [
   {
     title: "Respect and Culture",
     dialogues: [
-      { speaker: "teacher", sanskrit: "When we greet someone respectfully, we say __.", english: "" },
+      { speaker: "teacher", sanskrit: "When we greet someone respectfully, we say ____.", english: "" },
     ],
     question: {
       type: "mcq",
@@ -88,8 +88,8 @@ const scenes: Scene[] = [
     ],
     question: {
       type: "fill",
-      prompt: "Fill in the blank: अहं ___ अस्मि।",
-      blankDisplay: "अहं ___ अस्मि।",
+      prompt: "Fill in the blank: अहं _______ अस्मि।",
+      blankDisplay: "अहं _______ अस्मि।",
       options: ["विद्यार्थी", "गुरु", "अश्वः"],
       correctAnswer: "विद्यार्थी",
     },
@@ -141,7 +141,6 @@ function SpeechBubble({ side, sanskrit, english }: { side: "left" | "right"; san
 
 function DialogueRow({ step }: { step: DialogueStep }) {
   const isTeacher = step.speaker === "teacher";
-
   return (
     <div className={`flex items-end gap-0 mb-4 ${isTeacher ? "flex-row" : "flex-row-reverse"}`}>
       <img
@@ -149,11 +148,7 @@ function DialogueRow({ step }: { step: DialogueStep }) {
         alt={isTeacher ? "Teacher" : "Monkey"}
         className="h-[120px] md:h-[160px] object-contain flex-shrink-0 z-10"
       />
-      <SpeechBubble
-        side={isTeacher ? "left" : "right"}
-        sanskrit={step.sanskrit}
-        english={step.english}
-      />
+      <SpeechBubble side={isTeacher ? "left" : "right"} sanskrit={step.sanskrit} english={step.english} />
     </div>
   );
 }
@@ -175,13 +170,7 @@ function XPAnimation({ show }: { show: boolean }) {
 }
 
 function MonkeyReaction({ state }: { state: "idle" | "correct" | "wrong" }) {
-  const img =
-    state === "correct"
-      ? monkeyCorrectImg
-      : state === "wrong"
-      ? monkeyCryingImg
-      : monkeySitImg;
-
+  const img = state === "correct" ? monkeyCorrectImg : state === "wrong" ? monkeyCryingImg : monkeySitImg;
   return (
     <motion.img
       key={state}
@@ -189,9 +178,7 @@ function MonkeyReaction({ state }: { state: "idle" | "correct" | "wrong" }) {
       alt="Monkey reaction"
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: state === "wrong" ? 1.15 : 1, opacity: 1 }}
-      className={`h-[160px] md:h-[200px] object-contain mx-auto ${
-        state === "wrong" ? "animate-bounce-shake" : ""
-      }`}
+      className={`h-[160px] md:h-[200px] object-contain mx-auto ${state === "wrong" ? "animate-bounce-shake" : ""}`}
     />
   );
 }
@@ -283,20 +270,11 @@ export default function GurukulLesson() {
       <XPAnimation show={showXp} />
 
       <div className="w-full max-w-2xl">
-        
-        {/* NEW: Top Row with Back Button and XP Counter */}
-        <div className="flex justify-between items-center mb-4 w-full">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/dashboard")} 
-            className="text-muted-foreground hover:text-foreground pl-0 md:-ml-4"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" /> Back to Dashboard
-          </Button>
-
+        {/* XP Counter */}
+        <div className="flex justify-end mb-2">
           <span className="text-base md:text-lg font-extrabold text-gurukul-gold font-display flex items-center gap-1">
-            ⭐ {xp} XP
-          </span>
+          ⭐ {xp} XP
+        </span>
         </div>
 
         <ProgressBar current={sceneIdx} total={scenes.length} />
@@ -311,14 +289,14 @@ export default function GurukulLesson() {
            {scene.title}
         </motion.h2>
 
-       {/* Dialogues */}
-<AnimatePresence mode="wait">
-  <div className="space-y-2">
-    {dialoguesShown.map((d, i) => (
-      <DialogueRow key={`${sceneIdx}-${i}`} step={d} />
-    ))}
-  </div>
-</AnimatePresence>
+        {/* Dialogues */}
+        <AnimatePresence mode="wait">
+          <div className="space-y-2">
+            {dialoguesShown.map((d, i) => (
+              <DialogueRow key={`${sceneIdx}-${i}`} step={d} />
+            ))}
+          </div>
+        </AnimatePresence>
 
         {/* Continue / Next Dialogue Button */}
         {phase === "dialogue" && (
@@ -358,7 +336,7 @@ export default function GurukulLesson() {
             {scene.question.type === "fill" && (
               <p className="text-xl font-devanagari font-bold text-foreground mb-4 text-center bg-muted/50 py-3 rounded-xl">
                 {selected && answerState === "correct"
-                  ? (scene.question as FillBlankQuestion).blankDisplay.replace("__", selected).replace("__", selected)
+                  ? (scene.question as FillBlankQuestion).blankDisplay.replace("_______", selected).replace("_____", selected)
                   : (scene.question as FillBlankQuestion).blankDisplay}
               </p>
             )}
