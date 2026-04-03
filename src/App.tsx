@@ -16,7 +16,6 @@ import Lectures from "./pages/Lectures";
 import LessonPlayer from "./pages/LessonPlayer";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
-import Test from "@/pages/Test";
 import NotFound from "./pages/NotFound";
 import SanskritGame from "./components/SanskritGame";
 import AIScholar from "./pages/AIScholar";
@@ -56,9 +55,6 @@ const App = () => {
 
               {/* Sanskrit Game Route */}
               <Route path="/game" element={<SanskritGame />} />
-
-              {/* Test Session */}
-              <Route path="/test-session" element={<Test />} />
 
               {/* AI Scholar Route */}
               <Route path="/ai-scholar" element={<AIScholar />} />
