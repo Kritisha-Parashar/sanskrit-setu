@@ -27,6 +27,7 @@ interface PronunciationResult {
   word_match: boolean;
   score: number;
   transcription: string;
+  transcription_devanagari: string;
   feedback: string;
   phoneme_sequence_expected: string;
   phoneme_sequence_actual: string;
@@ -411,7 +412,7 @@ const VoicePractice: React.FC = () => {
                 <div>
                   <p className="text-gray-600">Transcription:</p>
                   <p className="font-semibold text-gray-800">
-                    "{bestAttempt.result.transcription}"
+                    "{bestAttempt.result.transcription_devanagari}"
                   </p>
                 </div>
                 <div>
@@ -449,7 +450,7 @@ const VoicePractice: React.FC = () => {
                     className="flex justify-between items-center p-2 bg-white rounded text-sm"
                   >
                     <span className="text-gray-700">
-                      "{attempt.result.transcription}"
+                      "{attempt.result.transcription_devanagari}"
                     </span>
                     <Badge className="text-xs px-2 py-1">
                       {attempt.result.score}%

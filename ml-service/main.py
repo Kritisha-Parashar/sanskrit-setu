@@ -77,7 +77,8 @@ class EvaluationResponse(BaseModel):
     """Response schema for pronunciation evaluation."""
     word_match: bool           # Did they say the right word?
     score: int                 # 0-100 pronunciation accuracy
-    transcription: str         # What Whisper heard
+    transcription: str         # What Whisper heard (romanized or original)
+    transcription_devanagari: str  # Converted Devanagari version
     feedback: str              # Human-readable feedback
     phoneme_sequence_expected: str
     phoneme_sequence_actual: str
@@ -165,6 +166,7 @@ async def evaluate_pronunciation(request: EvaluationRequest) -> EvaluationRespon
             word_match=comparison["word_match"],
             score=comparison["score"],
             transcription=transcription_devanagari,
+            transcription_devanagari=comparison["transcribed_devanagari"],
             feedback=comparison["feedback"],
             phoneme_sequence_expected=comparison["phoneme_sequence_expected"],
             phoneme_sequence_actual=comparison["phoneme_sequence_actual"],
