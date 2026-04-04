@@ -51,6 +51,8 @@ const VoicePractice: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [wordScores, setWordScores] = useState<number[]>([]);
+  const [sessionComplete, setSessionComplete] = useState(false);
 
   const currentWord = PRACTICE_WORDS[currentWordIndex];
   const wordInfo = WORD_DATA[currentWord];
@@ -174,15 +176,25 @@ const VoicePractice: React.FC = () => {
           setAttempts((prev) => [newAttempt, ...prev]);
           setSuccessMessage(`Score: ${result.score}/100 - ${result.feedback}`);
 
-          // Auto-advance to next word if perfect score
-          if (
-            result.score >= 90 &&
-            currentWordIndex < PRACTICE_WORDS.length - 1
-          ) {
+          // Track best score for this word
+          const currentBestScore = bestAttempt?.result.score || 0;
+          const newBestScore = Math.max(result.score, currentBestScore);
+
+          // Auto-advance to next word if score >= 50
+          if (result.score >= 50) {
             setTimeout(() => {
-              setCurrentWordIndex((prev) => prev + 1);
-              setAttempts([]);
-              setSuccessMessage(null);
+              const newScores = [...wordScores, newBestScore];
+              setWordScores(newScores);
+
+              // Check if we've completed all words
+              if (currentWordIndex < PRACTICE_WORDS.length - 1) {
+                setCurrentWordIndex((prev) => prev + 1);
+                setAttempts([]);
+                setSuccessMessage(null);
+              } else {
+                // Session complete - show summary
+                setSessionComplete(true);
+              }
             }, 2000);
           }
         } catch (err: any) {
@@ -202,13 +214,20 @@ const VoicePractice: React.FC = () => {
   };
 
   const nextWord = () => {
-    if (currentWordIndex < PRACTICE_WORDS.length - 1) {
+    if (sessionComplete) {
+      navigate("/dashboard");
+    } else if (currentWordIndex < PRACTICE_WORDS.length - 1) {
+      const newScores = [...wordScores, bestAttempt?.result.score || 0];
+      setWordScores(newScores);
       setCurrentWordIndex((prev) => prev + 1);
       setAttempts([]);
       setError(null);
       setSuccessMessage(null);
-    } else {
-      navigate("/dashboard");
+    } else if (currentWordIndex === PRACTICE_WORDS.length - 1) {
+      // Last word - manual completion
+      const newScores = [...wordScores, bestAttempt?.result.score || 0];
+      setWordScores(newScores);
+      setSessionComplete(true);
     }
   };
 
@@ -220,6 +239,92 @@ const VoicePractice: React.FC = () => {
       setSuccessMessage(null);
     }
   };
+
+  const averageScore =
+    wordScores.length > 0
+      ? Math.round(wordScores.reduce((a, b) => a + b, 0) / wordScores.length)
+      : 0;
+
+  // If session is complete, show summary screen
+  if (sessionComplete) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50 p-6">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+              🎉 Session Complete!
+            </h1>
+            <p className="text-gray-600">
+              Great job practicing Sanskrit pronunciation!
+            </p>
+          </div>
+
+          <Card className="border-2 border-green-200 shadow-lg mb-8">
+            <CardHeader className="bg-gradient-to-r from-green-100 to-blue-100">
+              <CardTitle className="text-center">
+                <div className="text-6xl font-bold text-green-600 mb-2">
+                  {averageScore}%
+                </div>
+                <p className="text-2xl text-gray-700">Average Score</p>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-8">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  Word Scores:
+                </h3>
+                {PRACTICE_WORDS.map((word, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <span className="text-gray-700 font-medium">{word}</span>
+                    <Badge
+                      variant={
+                        wordScores[idx] >= 75
+                          ? "default"
+                          : wordScores[idx] >= 50
+                            ? "secondary"
+                            : "outline"
+                      }
+                      className="text-base px-3 py-1"
+                    >
+                      {wordScores[idx]}%
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex gap-4 justify-center">
+            <Button
+              onClick={() => navigate("/dashboard")}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg"
+              size="lg"
+            >
+              Back to Dashboard
+            </Button>
+            <Button
+              onClick={() => {
+                setCurrentWordIndex(0);
+                setAttempts([]);
+                setWordScores([]);
+                setSessionComplete(false);
+                setError(null);
+                setSuccessMessage(null);
+              }}
+              variant="outline"
+              className="px-8 py-6 text-lg"
+              size="lg"
+            >
+              Practice Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50 p-6">
@@ -386,9 +491,7 @@ const VoicePractice: React.FC = () => {
             onClick={nextWord}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6"
           >
-            {currentWordIndex === PRACTICE_WORDS.length - 1
-              ? "Finish Practice"
-              : "Next Word →"}
+            {"Next Word →"}
           </Button>
         </div>
 
