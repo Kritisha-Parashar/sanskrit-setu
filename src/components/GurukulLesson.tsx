@@ -5,8 +5,6 @@ import monkeySitImg from "@/assets/monkey-sit.png";
 import monkeyCorrectImg from "@/assets/monkey-correct.png";
 import monkeyCryingImg from "@/assets/monkey-crying.png";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Star } from "lucide-react"
 
 
 
@@ -180,9 +178,7 @@ function MonkeyReaction({ state }: { state: "idle" | "correct" | "wrong" }) {
       alt="Monkey reaction"
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: state === "wrong" ? 1.15 : 1, opacity: 1 }}
-      className={`h-[160px] md:h-[200px] object-contain mx-auto ${
-        state === "wrong" ? "animate-bounce-shake" : ""
-      }`}
+      className={`h-[160px] md:h-[200px] object-contain mx-auto ${state === "wrong" ? "animate-bounce-shake" : ""}`}
     />
   );
 }
@@ -274,20 +270,11 @@ export default function GurukulLesson() {
       <XPAnimation show={showXp} />
 
       <div className="w-full max-w-2xl">
-        
-        {/* NEW: Top Row with Back Button and XP Counter */}
-        <div className="flex justify-between items-center mb-4 w-full">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/dashboard")} 
-            className="text-muted-foreground hover:text-foreground pl-0 md:-ml-4"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" /> Back to Dashboard
-          </Button>
-
+        {/* XP Counter */}
+        <div className="flex justify-end mb-2">
           <span className="text-base md:text-lg font-extrabold text-gurukul-gold font-display flex items-center gap-1">
-            ⭐ {xp} XP
-          </span>
+          ⭐ {xp} XP
+        </span>
         </div>
 
         <ProgressBar current={sceneIdx} total={scenes.length} />
@@ -302,14 +289,14 @@ export default function GurukulLesson() {
            {scene.title}
         </motion.h2>
 
-       {/* Dialogues */}
-<AnimatePresence mode="wait">
-  <div className="space-y-2">
-    {dialoguesShown.map((d, i) => (
-      <DialogueRow key={`${sceneIdx}-${i}`} step={d} />
-    ))}
-  </div>
-</AnimatePresence>
+        {/* Dialogues */}
+        <AnimatePresence mode="wait">
+          <div className="space-y-2">
+            {dialoguesShown.map((d, i) => (
+              <DialogueRow key={`${sceneIdx}-${i}`} step={d} />
+            ))}
+          </div>
+        </AnimatePresence>
 
         {/* Continue / Next Dialogue Button */}
         {phase === "dialogue" && (

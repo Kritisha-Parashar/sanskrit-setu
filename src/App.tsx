@@ -16,11 +16,11 @@ import Lectures from "./pages/Lectures";
 import LessonPlayer from "./pages/LessonPlayer";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
-import Test from "@/pages/Test";
 import NotFound from "./pages/NotFound";
 import SanskritGame from "./components/SanskritGame";
-import AIScholar from './pages/AIScholar';
-import GurukulLesson from "@/components/GurukulLesson"; 
+import AIScholar from "./pages/AIScholar";
+import GurukulLesson from "@/components/GurukulLesson";
+import VoicePractice from "@/pages/VoicePractice";
 
 const queryClient = new QueryClient();
 
@@ -37,7 +37,7 @@ const App = () => {
               {/* Public Routes */}
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
-              
+
               {/* Admin Routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -49,24 +49,21 @@ const App = () => {
 
               {/* The List of all Lectures */}
               <Route path="/lectures" element={<Lectures />} />
-              
+
               {/* The Actual Players */}
-              <Route
-                path="/lectures/:lectureId"
-                element={<LessonPlayer />}
-              />
+              <Route path="/lectures/:lectureId" element={<LessonPlayer />} />
 
               {/* Sanskrit Game Route */}
               <Route path="/game" element={<SanskritGame />} />
 
-              {/* Test Session */}
-              <Route path="/test-session" element={<Test />} />
-              
               {/* AI Scholar Route */}
               <Route path="/ai-scholar" element={<AIScholar />} />
 
               {/* Gurukul Lesson Route */}
               <Route path="/gurukul-lesson" element={<GurukulLesson />} />
+
+              {/* Voice Practice Route */}
+              <Route path="/voice-practice" element={<VoicePractice />} />
 
               {/* 404 - MUST BE AT THE BOTTOM */}
               <Route path="*" element={<NotFound />} />
