@@ -1,5 +1,5 @@
 -- Database migrations for Sanskrit-Setu
--- Run this file if you need to manually set up the database
+-- file to be run to manually setup the database
 
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
@@ -101,8 +101,7 @@ CREATE TABLE IF NOT EXISTS lessons (
 -- Create index on lessons.lesson_id
 CREATE INDEX IF NOT EXISTS idx_lessons_lesson_id ON lessons(lesson_id);
 
--- Update user_progress to use TEXT[] for lesson IDs (to support LS001 format)
--- Note: This may fail if columns are already TEXT[], which is fine
+-- Update user_progress to use TEXT[] for lesson IDs (to support LS001 format) and ignore if already TEXT[]
 DO $$
 BEGIN
   ALTER TABLE user_progress 
@@ -163,3 +162,11 @@ CREATE TABLE IF NOT EXISTS reference_audio (
 
 CREATE INDEX IF NOT EXISTS idx_reference_audio_word_id ON reference_audio(word_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_reference_audio_word_unique ON reference_audio(word_id, audio_source);
+
+-- Email notification preference (reminder | weekly | updates | none)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email_notification_preference VARCHAR(32) DEFAULT 'none';
+CREATE INDEX IF NOT EXISTS idx_users_email_notification_preference ON users(email_notification_preference);
+
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_email_notification_preference_check;
+ALTER TABLE users ADD CONSTRAINT users_email_notification_preference_check
+  CHECK (email_notification_preference IN ('none', 'reminder', 'weekly', 'updates'));

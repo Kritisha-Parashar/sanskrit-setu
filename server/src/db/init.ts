@@ -19,6 +19,24 @@ export async function initializeDatabase() {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS username VARCHAR(255)
     `).catch(() => {});
 
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS email_notification_preference VARCHAR(32) DEFAULT 'none'
+    `).catch(() => {});
+
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_users_email_notification_preference
+      ON users(email_notification_preference)
+    `).catch(() => {});
+
+    await pool.query(`
+      DO $$ BEGIN
+        ALTER TABLE users ADD CONSTRAINT users_email_notification_preference_check
+          CHECK (email_notification_preference IN ('none', 'reminder', 'weekly', 'updates'));
+      EXCEPTION
+        WHEN duplicate_object THEN NULL;
+      END $$
+    `).catch(() => {});
+
     // Create refresh_tokens table if it doesn't exist
     await pool.query(`
       CREATE TABLE IF NOT EXISTS refresh_tokens (

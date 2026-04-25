@@ -1,5 +1,23 @@
 # Complete Database Setup Guide for Sanskrit-Setu
 
+⚡ Quick Setup (Using Preloaded Database Dump)
+
+If you want a fully working database with sample data:
+
+Step 1: Create database
+createdb sanskrit_setu
+Step 2: Restore dump
+psql -U postgres -d sanskrit_setu < dump.sql
+Step 3: Setup environment
+cp .env.example .env
+
+Update .env with your PostgreSQL password.
+
+Step 4: Run server
+npm run dev
+
+✅ Done — project will run with preloaded data
+
 This guide will help you set up the PostgreSQL database for authentication and authorization in the Sanskrit-Setu platform.
 
 ## Prerequisites

@@ -69,7 +69,7 @@ router.post("/signup", async (req, res) => {
     const userName = (username && username.trim()) ? username.trim() : displayName;
     // Create user with role and username
     const result = await client.query(
-      "INSERT INTO users (email, password_hash, name, username, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, name, username, role",
+      "INSERT INTO users (email, password_hash, name, username, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, email, name, username, role, email_notification_preference",
       [email, passwordHash, displayName, userName, role || "student"]
     );
 
@@ -123,6 +123,7 @@ router.post("/signup", async (req, res) => {
         name: user.name,
         username: user.username || user.name || email.split("@")[0],
         role: user.role,
+        emailNotificationPreference: user.email_notification_preference ?? "none",
       },
     });
   } catch (error: any) {
@@ -174,7 +175,7 @@ router.post("/login", async (req, res) => {
 
     // Find user
     const result = await pool.query(
-      "SELECT id, email, password_hash, name, username, role FROM users WHERE email = $1",
+      "SELECT id, email, password_hash, name, username, role, email_notification_preference FROM users WHERE email = $1",
       [email]
     );
 
@@ -225,6 +226,7 @@ router.post("/login", async (req, res) => {
         name: user.name,
         username: user.username || user.name || email.split("@")[0],
         role: user.role,
+        emailNotificationPreference: user.email_notification_preference ?? "none",
       },
     });
   } catch (error: any) {
@@ -258,7 +260,7 @@ router.post("/login", async (req, res) => {
 router.get("/me", authenticateToken, async (req: AuthRequest, res) => {
   try {
     const result = await pool.query(
-      "SELECT id, email, name, username, role FROM users WHERE id = $1",
+      "SELECT id, email, name, username, role, email_notification_preference FROM users WHERE id = $1",
       [req.userId]
     );
 
@@ -274,6 +276,7 @@ router.get("/me", authenticateToken, async (req: AuthRequest, res) => {
         name: user.name,
         username: user.username || user.name || user.email.split("@")[0],
         role: user.role,
+        emailNotificationPreference: user.email_notification_preference ?? "none",
       },
     });
   } catch (error) {
@@ -320,7 +323,7 @@ router.post("/refresh", async (req, res) => {
 
     // Get user details
     const userResult = await pool.query(
-      "SELECT id, email, name, username, role FROM users WHERE id = $1",
+      "SELECT id, email, name, username, role, email_notification_preference FROM users WHERE id = $1",
       [userId]
     );
 
@@ -369,6 +372,7 @@ router.post("/refresh", async (req, res) => {
         name: user.name,
         username: user.username || user.name || user.email.split("@")[0],
         role: user.role,
+        emailNotificationPreference: user.email_notification_preference ?? "none",
       },
     });
   } catch (error) {

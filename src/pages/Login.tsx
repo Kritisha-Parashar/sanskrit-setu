@@ -29,29 +29,25 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        // Login flow - authenticate and redirect
         await login(email, password);
         
-        // Update user context
         loginUser();
 
         navigate("/dashboard");
       } else {
-        // Signup flow - create account but don't auto-login
+        
         await signup(email, password, name || undefined, username || undefined);
         
-        // Show success message and switch to login mode
         setSuccessMessage("Account created successfully! Please log in to continue.");
         setIsLogin(true);
-        setPassword(""); // Clear password field
+        setPassword("");
         setError(null);
       }
     } catch (err: any) {
       console.error("Auth error:", err);
       const errorMessage = err.message || (isLogin ? "Login failed. Please check your credentials." : "Signup failed. Please try again.");
       setError(errorMessage);
-      
-      // Also show alert for now (can be removed later)
+    
       alert(errorMessage);
     } finally {
       setLoading(false);
@@ -60,26 +56,22 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left Side - Mascot Area */}
       <div className="hidden lg:flex flex-1 flex-col items-center justify-center p-12 relative bg-muted/10">
-        {/* Logo */}
         <div className="absolute top-8 left-8">
           <Link to="/" className="flex items-center gap-3">
             <span className="font-display text-2xl font-bold text-foreground">Sanskrit-Setu</span>
           </Link>
         </div>
-
-        {/* Mascot with interaction */}
         <div className="flex flex-col items-center gap-8">
           <InteractiveMascot
             mood="happy"
             size="xl"
             showHeart
             messages={[
-              "Welcome back! 🙏",
-              "Ready to learn? 📚",
-              "नमस्ते! Let's go! ✨",
-              "You're awesome! 🌟",
+              "Welcome back! ",
+              "Ready to learn? ",
+              "नमस्ते! Let's go! ",
+              "You're awesome! ",
             ]}
           />
           

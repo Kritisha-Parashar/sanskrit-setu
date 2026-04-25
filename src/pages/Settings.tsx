@@ -1,23 +1,60 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  ArrowLeft, Bell, Moon, Volume2, ShieldCheck, 
-  Languages, Globe, Trash2, Eye, EyeOff, Save,
-  Database, Smartphone, HelpCircle, ChevronRight // Added ChevronRight here
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ArrowLeft,
+  Bell,
+  Volume2,
+  ShieldCheck,
+  Languages,
+  Globe,
+  Trash2,
+  Save,
+  ChevronRight,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useUserProgress } from "@/context/UserProgressContext";
-import { getStoredUser } from "@/lib/auth";
+import { changePassword, getStoredUser } from "@/lib/auth";
+import {
+  fetchUserSettings,
+  patchUserSettings,
+  type EmailNotificationPreference,
+} from "@/lib/userSettings";
 
 const Settings = () => {
-  const { progress, resetProgress } = useUserProgress();
+  const { resetProgress } = useUserProgress();
   const user = getStoredUser();
   const [isSaving, setIsSaving] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [settingsLoadError, setSettingsLoadError] = useState<string | null>(null);
+  const [emailSuccessHint, setEmailSuccessHint] = useState<string | null>(null);
+  const [emailPreference, setEmailPreference] = useState<EmailNotificationPreference>("none");
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   // Settings state logic
   const [settings, setSettings] = useState({
-    notifications: true,
     soundEffects: true,
     darkMode: false,
     publicProfile: true
@@ -26,6 +63,27 @@ const Settings = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!user) {
+        setEmailPreference("none");
+        return;
+      }
+      const data = await fetchUserSettings();
+      if (cancelled) return;
+      if (!data) {
+        setSettingsLoadError("Could not load email preferences. Try signing in again.");
+        return;
+      }
+      setSettingsLoadError(null);
+      setEmailPreference(data.emailNotificationPreference);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const toggleSetting = (key: keyof typeof settings) => {
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
@@ -43,10 +101,103 @@ const Settings = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    // Logic: Connect this to your PUT /api/user/settings backend endpoint
-    setTimeout(() => setIsSaving(false), 1000); 
+    try {
+      if (!user) {
+        alert("Sign in to save email preferences. Other options are local only for now.");
+        return;
+      }
+      const result = await patchUserSettings(emailPreference);
+      if (!result) {
+        alert("Could not save email preferences. Try signing in again.");
+        return;
+      }
+      if (result.user) {
+        localStorage.setItem("user", JSON.stringify(result.user));
+      }
+      if (result.emailDispatch?.attempted && !result.emailDispatch.ok) {
+        alert(
+          `Settings saved, but the notification email could not be sent.\n\n${result.emailDispatch.error ?? "Check server logs and RESEND_API_KEY."}\n\nNote: onboarding@resend.dev only delivers to your Resend signup email until you add a verified domain.`,
+        );
+      } else if (result.emailDispatch?.attempted && result.emailDispatch.ok && emailPreference !== "none") {
+        alert("Settings saved. A notification email was sent (check spam).");
+      } else {
+        alert("Settings saved.");
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Save failed";
+      alert(msg);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEmailPreferenceChange = async (v: string) => {
+    const pref = v as EmailNotificationPreference;
+    if (pref === emailPreference) return;
+    const rollback = emailPreference;
+    setEmailPreference(pref);
+    if (!user) return;
+
+    setEmailSaving(true);
+    setSettingsLoadError(null);
+    setEmailSuccessHint(null);
+    try {
+      const result = await patchUserSettings(pref);
+      if (!result) {
+        setEmailPreference(rollback);
+        setSettingsLoadError("Could not save. Try signing in again.");
+        return;
+      }
+      if (result.user) {
+        localStorage.setItem("user", JSON.stringify(result.user));
+      }
+      if (result.emailDispatch?.attempted && result.emailDispatch.ok) {
+        setEmailSuccessHint(
+          "Notification email sent. Check inbox and spam. With Resend’s test sender, only your Resend-account email may receive mail until you verify a domain.",
+        );
+      } else if (result.emailDispatch?.attempted && !result.emailDispatch.ok) {
+        setSettingsLoadError(
+          result.emailDispatch.error ??
+            "Preference saved, but email was not sent (check RESEND_API_KEY on the server).",
+        );
+      }
+    } catch {
+      setEmailPreference(rollback);
+      setSettingsLoadError("Could not update email preference.");
+    } finally {
+      setEmailSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordError(null);
+    if (newPassword.length < 6) {
+      setPasswordError("New password must be at least 6 characters.");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError("New password and confirmation do not match.");
+      return;
+    }
+    if (!user) {
+      setPasswordError("Sign in to change your password.");
+      return;
+    }
+    setIsChangingPassword(true);
+    try {
+      await changePassword(currentPassword, newPassword);
+      setPasswordDialogOpen(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+      alert("Password updated. Other devices may need to sign in again.");
+    } catch (e: unknown) {
+      setPasswordError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   return (
@@ -96,27 +247,8 @@ const Settings = () => {
                   </button>
                 </div>
 
-                {/* Notifications Toggle */}
-                <div className="p-6 flex items-center justify-between group hover:bg-primary/5 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                      <Bell className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-foreground">Learning Reminders</p>
-                      <p className="text-xs text-muted-foreground">Get notified to keep your daily streak</p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => toggleSetting('notifications')}
-                    className={`w-12 h-6 rounded-full transition-all relative ${settings.notifications ? 'bg-primary' : 'bg-muted'}`}
-                  >
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${settings.notifications ? 'left-7' : 'left-1'}`} />
-                  </button>
-                </div>
-
                 {/* Language Selection */}
-                <div className="p-6 flex items-center justify-between group hover:bg-primary/5 transition-colors cursor-pointer">
+                <div className="p-6 flex items-center justify-between group hover:bg-primary/5 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-purple/10 rounded-xl flex items-center justify-center text-purple">
                       <Languages className="w-5 h-5" />
@@ -126,7 +258,6 @@ const Settings = () => {
                       <p className="text-xs text-muted-foreground">English (US)</p>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground/30" />
                 </div>
 
               </div>
@@ -159,7 +290,7 @@ const Settings = () => {
                 </div>
 
                 {/* Change Password */}
-                <div className="p-6 flex items-center justify-between group hover:bg-primary/5 transition-colors cursor-pointer">
+                <div className="p-6 flex items-center justify-between group hover:bg-primary/5 transition-colors">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-success/10 rounded-xl flex items-center justify-center text-success">
                       <ShieldCheck className="w-5 h-5" />
@@ -169,7 +300,18 @@ const Settings = () => {
                       <p className="text-xs text-muted-foreground">Secure your learning progress</p>
                     </div>
                   </div>
-                  <Button variant="ghost" className="text-primary font-bold hover:bg-primary/10 rounded-xl">Update</Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="text-primary font-bold hover:bg-primary/10 rounded-xl"
+                    disabled={!user}
+                    onClick={() => {
+                      setPasswordError(null);
+                      setPasswordDialogOpen(true);
+                    }}
+                  >
+                    Update
+                  </Button>
                 </div>
 
               </div>
@@ -213,6 +355,69 @@ const Settings = () => {
 
         </div>
       </main>
+
+      <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Update password</DialogTitle>
+            <DialogDescription>
+              Enter your current password and a new one (at least 6 characters). Existing refresh sessions will be signed out for security.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            <div className="grid gap-2">
+              <Label htmlFor="current-password">Current password</Label>
+              <Input
+                id="current-password"
+                type="password"
+                autoComplete="current-password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="new-password">New password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                autoComplete="new-password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="confirm-password">Confirm new password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                autoComplete="new-password"
+                value={confirmNewPassword}
+                onChange={(e) => setConfirmNewPassword(e.target.value)}
+              />
+            </div>
+            {passwordError ? <p className="text-sm text-destructive">{passwordError}</p> : null}
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-xl"
+              onClick={() => setPasswordDialogOpen(false)}
+              disabled={isChangingPassword}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className="rounded-xl bg-primary"
+              onClick={() => void handleChangePassword()}
+              disabled={isChangingPassword}
+            >
+              {isChangingPassword ? "Updating…" : "Update password"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,4 +1,8 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import { API_BASE } from "./apiBase";
+
+const API_URL = API_BASE;
+
+export type EmailNotificationPreference = "none" | "reminder" | "weekly" | "updates";
 
 export interface AuthResponse {
   token: string;
@@ -8,6 +12,7 @@ export interface AuthResponse {
     name: string;
     username: string;
     role: "student" | "admin";
+    emailNotificationPreference?: EmailNotificationPreference;
   };
 }
 
@@ -138,6 +143,9 @@ export const getCurrentUser = async (): Promise<AuthResponse["user"] | null> => 
     }
 
     const data = await response.json();
+    if (data.user) {
+      localStorage.setItem("user", JSON.stringify(data.user));
+    }
     return data.user;
   } catch (error) {
     console.error("Get current user error:", error);
@@ -182,6 +190,34 @@ export const getCurrentUserRole = (): "student" | "admin" | null => {
     return user.role || "student";
   } catch {
     return null;
+  }
+};
+
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> => {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Sign in to change your password.");
+  }
+  const response = await fetch(`${API_URL}/auth/change-password`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  if (!response.ok) {
+    let message = "Could not update password.";
+    try {
+      const data = await response.json();
+      if (data.error) message = data.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
   }
 };
 

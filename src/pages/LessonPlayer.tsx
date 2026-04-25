@@ -31,8 +31,8 @@ const LessonPlayer = () => {
   const navigate = useNavigate();
   const { completeLesson, progress: userProgress } = useUserProgress();
   
-  // 3D Guru Ref
-  const avatarRef = useRef<AvatarHandle>(null);
+ 
+  const avatarRef = useRef<AvatarHandle>(null); //3D Guru
 
   const [lessonSlides, setLessonSlides] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,11 +81,10 @@ const LessonPlayer = () => {
     const current = lessonSlides[currentLessonIndex];
     const fullText = `${current.sanskrit} ... ${current.word}`;
     
-    // Set local state for UI pulse effect
+
     setIsPlaying(true);
     avatarRef.current?.speak(fullText);
     
-    // Reset pulse after approximate reading time
     setTimeout(() => setIsPlaying(false), 3000);
   }, [currentLessonIndex, lessonSlides]);
 
@@ -127,9 +126,8 @@ const LessonPlayer = () => {
     const percentage = (finalScore / 5) * 100;
     setFinalPercentage(percentage);
     
-    if (percentage >= 70) { // Using your 70% requirement
+    if (percentage >= 70) {
       setPassed(true);
-      // DYNAMIC UNLOCK: We generate the list of IDs from 1 to 50 (or your max)
       const allPossibleLessonIds = Array.from({ length: 50 }, (_, i) => `LS${(i + 1).toString().padStart(3, "0")}`);
       completeLesson(currentLectureId, percentage, allPossibleLessonIds);
     } else {

@@ -6,13 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import axios from "axios";
 
-// Import word bank (we'll use the first 5 words for Phase 1)
 const PRACTICE_WORDS = [
-  "अश्वः", // Horse
-  "गज:", // Elephant
-  "नर:", // Man
-  "बालक:", // Boy
-  "विद्या:", // Knowledge
+  "अश्वः", 
+  "गज:", 
+  "नर:", 
+  "बालक:", 
+  "विद्या:", 
 ];
 
 const WORD_DATA: Record<string, { meaning: string; ipa: string }> = {
@@ -27,6 +26,7 @@ interface PronunciationResult {
   word_match: boolean;
   score: number;
   transcription: string;
+  transcription_devanagari: string;
   feedback: string;
   phoneme_sequence_expected: string;
   phoneme_sequence_actual: string;
@@ -248,59 +248,43 @@ const VoicePractice: React.FC = () => {
   // If session is complete, show summary screen
   if (sessionComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50 p-6">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
-              🎉 Session Complete!
-            </h1>
-            <p className="text-gray-600">
-              Great job practicing Sanskrit pronunciation!
-            </p>
+      <div className="min-h-screen bg-[#9FD5CF] flex flex-col justify-center items-center p-6">
+        <div className="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full text-center">
+          <h1 className="text-4xl font-bold text-[#0B7D77] mb-4">
+             Session Complete!
+          </h1>
+          <p className="text-gray-600 mb-6">
+            Great job practicing Sanskrit pronunciation!
+          </p>
+
+          <div className="bg-gray-50 rounded-xl p-6 mb-8">
+            <div className="text-6xl font-bold text-[#0B7D77] mb-2">
+              {averageScore}%
+            </div>
+            <p className="text-xl text-gray-700 mb-6">Average Score</p>
+
+            <div className="space-y-3 text-left max-h-48 overflow-y-auto">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Word Scores:
+              </h3>
+              {PRACTICE_WORDS.map((word, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-2 bg-white rounded"
+                >
+                  <span className="text-gray-700 font-medium">{word}</span>
+                  <Badge className="text-base px-3 py-1">
+                    {wordScores[idx]}%
+                  </Badge>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <Card className="border-2 border-green-200 shadow-lg mb-8">
-            <CardHeader className="bg-gradient-to-r from-green-100 to-blue-100">
-              <CardTitle className="text-center">
-                <div className="text-6xl font-bold text-green-600 mb-2">
-                  {averageScore}%
-                </div>
-                <p className="text-2xl text-gray-700">Average Score</p>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-8">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Word Scores:
-                </h3>
-                {PRACTICE_WORDS.map((word, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                  >
-                    <span className="text-gray-700 font-medium">{word}</span>
-                    <Badge
-                      variant={
-                        wordScores[idx] >= 75
-                          ? "default"
-                          : wordScores[idx] >= 50
-                            ? "secondary"
-                            : "outline"
-                      }
-                      className="text-base px-3 py-1"
-                    >
-                      {wordScores[idx]}%
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex gap-4 justify-center">
+          <div className="flex flex-col gap-3">
             <Button
               onClick={() => navigate("/dashboard")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 text-lg"
+              className="bg-[#0B7D77] hover:bg-[#0A6E68] text-white px-8 py-3 rounded-xl w-full"
               size="lg"
             >
               Back to Dashboard
@@ -314,8 +298,7 @@ const VoicePractice: React.FC = () => {
                 setError(null);
                 setSuccessMessage(null);
               }}
-              variant="outline"
-              className="px-8 py-6 text-lg"
+              className="bg-white text-[#0B7D77] border-2 border-[#0B7D77] hover:bg-gray-50 px-8 py-3 rounded-xl w-full font-semibold"
               size="lg"
             >
               Practice Again
@@ -327,204 +310,174 @@ const VoicePractice: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50 p-6">
-      {/* Header */}
-      <div className="max-w-2xl mx-auto mb-8">
+    <div className="min-h-screen bg-[#9FD5CF] flex flex-col relative">
+      {/* Back Button */}
+      <div className="absolute top-4 left-4 z-10">
         <button
           onClick={() => navigate("/dashboard")}
-          className="text-blue-600 hover:text-blue-800 mb-4 flex items-center gap-2"
+          className="flex items-center gap-2 px-4 py-2 bg-white/90 text-[#0B7D77] rounded-lg shadow-sm hover:bg-white transition-colors font-medium"
         >
-          ← Back to Dashboard
+          ← Back
         </button>
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">
-          🎤 Voice Practice
-        </h1>
-        <p className="text-gray-600">
-          Pronounce the Sanskrit word correctly. Record up to 5 seconds of
-          audio.
-        </p>
       </div>
 
-      <div className="max-w-2xl mx-auto space-y-6">
-        {/* Progress */}
-        <div className="flex justify-between items-center">
-          <Badge variant="outline" className="text-lg px-4 py-2">
-            Word {currentWordIndex + 1} of {PRACTICE_WORDS.length}
-          </Badge>
-          <div className="text-sm text-gray-600">
-            Attempts: <strong>{attempts.length}</strong>
+      {/* Orange Progress Bar */}
+      <div
+        className="h-1 bg-orange-400"
+        style={{
+          width: `${((currentWordIndex + 1) / PRACTICE_WORDS.length) * 100}%`,
+        }}
+      />
+
+      {/* Word Counter - Small Box */}
+      <div className="flex justify-center py-4">
+        <div className="bg-white px-6 py-2 rounded-full shadow-md inline-block">
+          <p className="text-sm font-mono text-[#0B7D77]">
+            Word {currentWordIndex + 1} / {PRACTICE_WORDS.length}
+          </p>
+        </div>
+      </div>
+
+      {/* Main Content - Centered */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-4 overflow-y-auto pb-32">
+        {/* Word Box - Top */}
+        <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 w-full max-w-2xl text-center">
+          <div className="text-7xl font-bold text-[#0B7D77] leading-none mb-4">
+            {currentWord}
           </div>
+          <p className="text-2xl font-semibold text-[#0B7D77] mb-2">
+            {wordInfo.meaning}
+          </p>
+          <p className="text-sm text-gray-600">IPA: {wordInfo.ipa}</p>
         </div>
 
-        {/* Word Card */}
-        <Card className="border-2 border-purple-200 shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-purple-100 to-blue-100">
-            <CardTitle className="text-center text-5xl mb-4">
-              {currentWord}
-            </CardTitle>
-            <div className="text-center space-y-2">
-              <p className="text-xl font-semibold text-gray-700">
-                {wordInfo.meaning}
-              </p>
-              <p className="text-sm text-gray-600">
-                IPA: <code className="text-xs">{wordInfo.ipa}</code>
-              </p>
+        {/* Recording Box - Middle */}
+        <div className="bg-white rounded-3xl shadow-xl p-8 mb-8 w-full max-w-2xl">
+          {error && (
+            <Alert className="bg-red-50 border-red-200 mb-4">
+              <AlertDescription className="text-red-800 text-sm">
+                {error}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {successMessage && (
+            <Alert className="bg-green-50 border-green-200 mb-4">
+              <AlertDescription className="text-green-800 text-sm">
+                {successMessage}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Recording Timer */}
+          {isRecording && (
+            <div className="text-center py-4 bg-red-50 rounded-lg mb-4">
+              <div className="text-3xl font-bold text-red-600 animate-pulse">
+                {recordingTime.toFixed(1)}s
+              </div>
+              <p className="text-sm text-red-700 mt-2">Recording...</p>
             </div>
-          </CardHeader>
-        </Card>
+          )}
 
-        {/* Recording Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Record Your Pronunciation</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {error && (
-              <Alert className="bg-red-50 border-red-200">
-                <AlertDescription className="text-red-800">
-                  {error}
-                </AlertDescription>
-              </Alert>
+          {/* Record/Stop Button */}
+          <div className="mb-4">
+            {!isRecording ? (
+              <Button
+                onClick={startRecording}
+                disabled={isEvaluating}
+                className="w-full bg-[#0B7D77] hover:bg-[#0A6E68] text-white px-6 py-3 rounded-xl text-lg"
+              >
+                 {isEvaluating ? "Evaluating..." : "Speak"}
+              </Button>
+            ) : (
+              <Button
+                onClick={stopRecording}
+                disabled={isEvaluating}
+                className="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl text-lg"
+              >
+              Stop & Evaluate
+              </Button>
             )}
+          </div>
 
-            {successMessage && (
-              <Alert className="bg-green-50 border-green-200">
-                <AlertDescription className="text-green-800">
-                  {successMessage}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* Recording Timer */}
-            {isRecording && (
-              <div className="text-center py-4 bg-red-50 rounded-lg">
-                <div className="text-3xl font-bold text-red-600 animate-pulse">
-                  {recordingTime.toFixed(1)}s
-                </div>
-                <p className="text-sm text-red-700 mt-2">Recording...</p>
+          {/* Best Attempt */}
+          {bestAttempt && (
+            <div className="bg-gray-50 rounded-lg p-4 text-left">
+              <div className="flex items-center gap-2 mb-3 font-semibold text-[#0B7D77]">
+                {bestAttempt.result.word_match ? "Correct!" : "Incorrect!"} Best Attempt (
+                {bestAttempt.result.score}%)
               </div>
-            )}
-
-            {/* Record/Stop Button */}
-            <div className="flex gap-4 justify-center">
-              {!isRecording ? (
-                <Button
-                  onClick={startRecording}
-                  disabled={isEvaluating}
-                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-lg"
-                  size="lg"
-                >
-                  🎙️ Start Recording
-                </Button>
-              ) : (
-                <Button
-                  onClick={stopRecording}
-                  disabled={isEvaluating}
-                  className="bg-red-600 hover:bg-red-700 text-white px-8 py-6 text-lg"
-                  size="lg"
-                >
-                  ⏹️ Stop & Evaluate
-                </Button>
-              )}
-            </div>
-
-            {isEvaluating && (
-              <div className="text-center py-4">
-                <p className="text-gray-600 animate-pulse">
-                  Evaluating pronunciation...
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Best Attempt */}
-        {bestAttempt && (
-          <Card className="border-blue-200">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                {bestAttempt.result.word_match ? "✅" : "⭕"} Best Attempt
-                (Score: {bestAttempt.result.score})
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Transcription:</p>
-                <p className="text-lg font-semibold">
-                  {bestAttempt.result.transcription}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Feedback:</p>
-                <p className="text-gray-800">{bestAttempt.result.feedback}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="space-y-2 text-sm">
                 <div>
-                  <p className="text-gray-600">Word Match:</p>
-                  <p className="font-semibold">
-                    {bestAttempt.result.word_match ? "Yes ✓" : "No ✗"}
+                  <p className="text-gray-600">Transcription:</p>
+                  <p className="font-semibold text-gray-800">
+                    "{bestAttempt.result.transcription_devanagari}"
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Similarity:</p>
-                  <p className="font-semibold">
-                    {(bestAttempt.result.similarity * 100).toFixed(1)}%
-                  </p>
+                  <p className="text-gray-600">Feedback:</p>
+                  <p className="text-gray-700">{bestAttempt.result.feedback}</p>
+                </div>
+                <div className="flex gap-4 pt-2">
+                  <div>
+                    <p className="text-gray-600 text-xs">Word Match:</p>
+                    <p className="font-semibold text-gray-800">
+                      {bestAttempt.result.word_match ? "Yes ✓" : "No ✗"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-600 text-xs">Similarity:</p>
+                    <p className="font-semibold text-gray-800">
+                      {(bestAttempt.result.similarity * 100).toFixed(1)}%
+                    </p>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          )}
 
-        {/* Navigation */}
-        <div className="flex gap-4 justify-between">
-          <Button
-            onClick={previousWord}
-            disabled={currentWordIndex === 0}
-            variant="outline"
-            className="px-6"
-          >
-            ← Previous Word
-          </Button>
-
-          <Button
-            onClick={nextWord}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6"
-          >
-            {"Next Word →"}
-          </Button>
-        </div>
-
-        {/* Attempt History */}
-        {attempts.length > 1 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Attempts</CardTitle>
-            </CardHeader>
-            <CardContent>
+          {/* All Attempts History */}
+          {attempts.length > 0 && (
+            <div className="bg-gray-50 rounded-lg p-4 mt-4">
+              <h4 className="text-sm font-semibold text-[#0B7D77] mb-3">
+                All Attempts ({attempts.length})
+              </h4>
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {attempts.slice(1, 6).map((attempt, idx) => (
+                {attempts.map((attempt, idx) => (
                   <div
                     key={idx}
-                    className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                    className="flex justify-between items-center p-2 bg-white rounded text-sm"
                   >
-                    <span className="text-sm text-gray-700">
-                      Attempt {attempts.length - idx}: "
-                      {attempt.result.transcription}"
+                    <span className="text-gray-700">
+                      "{attempt.result.transcription_devanagari}"
                     </span>
-                    <Badge
-                      variant={
-                        attempt.result.score >= 75 ? "default" : "secondary"
-                      }
-                    >
+                    <Badge className="text-xs px-2 py-1">
                       {attempt.result.score}%
                     </Badge>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation Buttons */}
+      <div className="fixed bottom-0 left-0 right-0 flex justify-between px-8 py-6 bg-[#9FD5CF]/80 backdrop-blur-sm z-50 border-t border-white/20">
+        <Button
+          onClick={previousWord}
+          disabled={currentWordIndex === 0}
+          className="px-6 py-3 bg-white text-[#0B7D77] rounded-xl shadow disabled:opacity-40 hover:bg-gray-50"
+        >
+          ← Previous
+        </Button>
+
+        <Button
+          onClick={nextWord}
+          className="px-6 py-3 bg-[#0B7D77] hover:bg-[#0A6E68] text-white rounded-xl shadow"
+        >
+          Next →
+        </Button>
       </div>
     </div>
   );

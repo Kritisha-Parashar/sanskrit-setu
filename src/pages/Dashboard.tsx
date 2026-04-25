@@ -278,7 +278,7 @@ const Dashboard = () => {
                 </div>
                 <div className="text-center md:text-left">
                   <h2 className="text-4xl font-display font-bold text-foreground mb-2">
-                    नमस्कारम्, {displayName}! 🙏
+                    नमस्कारम्, {displayName}! 
                   </h2>
                   <p className="text-muted-foreground text-lg leading-relaxed max-w-sm">
                     Your persistence is the key to mastering Sanskrit. Ready to
@@ -378,7 +378,7 @@ const Dashboard = () => {
 
             <div className="bg-white/80 backdrop-blur-md rounded-[2rem] p-6 border border-white/50 shadow-lg space-y-4">
               <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2 px-2">
-                Laboratory
+                Practice Hub
               </h4>
 
               <Link
@@ -386,12 +386,12 @@ const Dashboard = () => {
                 className="flex items-center gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-all group"
               >
                 <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
-                  🧪
+                  🎙️
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-bold">Voice Test</p>
+                  <p className="text-sm font-bold">Pronounciation Test</p>
                   <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">
-                    AI Validation
+                    Speech Accuracy
                   </p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
@@ -407,7 +407,7 @@ const Dashboard = () => {
                 <div className="flex-1">
                   <p className="text-sm font-bold">Conversations</p>
                   <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">
-                    Interactive Lab
+                   Daily Sanskrit
                   </p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />

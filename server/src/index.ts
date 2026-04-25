@@ -1,3 +1,4 @@
+import path from "path";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -7,10 +8,18 @@ import lessonsRoutes from "./routes/lessons";
 import diagnosticsRoutes from "./routes/diagnostics";
 import adminRoutes from "./routes/admin";
 import voiceRoutes from "./routes/voice";
+import userSettingsRoutes from "./routes/userSettings";
+import cronNotificationRoutes from "./routes/cronNotifications";
 import { initializeDatabase } from "./db/init";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { isResendConfigured } from "./services/sendResendEmail";
 
-dotenv.config();
+const serverRootDir = path.resolve(__dirname, "..");
+
+// Load cwd .env first, then server/.env with override so backend secrets in server/.env always win
+// (otherwise a monorepo root .env with RESEND_API_KEY= can block the real key).
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+dotenv.config({ path: path.join(serverRootDir, ".env"), override: true });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +44,8 @@ app.use("/api", lessonsRoutes);
 app.use("/api", diagnosticsRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/voice", voiceRoutes);
+app.use("/api/user", userSettingsRoutes);
+app.use("/api/cron", cronNotificationRoutes);
 
 // --- START OF AI SCHOLAR ROUTE ---
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
@@ -95,6 +106,9 @@ initializeDatabase()
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      console.log(
+        `[env] Resend: ${isResendConfigured() ? "RESEND_API_KEY loaded (emails enabled)" : "RESEND_API_KEY missing — add it to server/.env and restart"}`,
+      );
     });
   })
   .catch((error) => {

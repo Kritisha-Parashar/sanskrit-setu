@@ -13,10 +13,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  // Removed refreshProgress as it's not defined in your context
   const { progress, isLoggedIn } = useUserProgress();
-  // Inside Profile.tsx
-const { logoutUser } = useUserProgress(); // Use your context function
+  
+const { logoutUser } = useUserProgress(); 
   const navigate = useNavigate();
   const user = getStoredUser();
   
@@ -32,13 +31,12 @@ const { logoutUser } = useUserProgress(); // Use your context function
   }, []);
 
   const handleLogout = () => {
-    // Standard logout logic: clear storage and redirect
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     sessionStorage.clear();
-    window.location.href = "/login"; // Force reload to clear context state
-    logoutUser(); // This now handles the state reset and storage clearing
-    navigate("/"); // Redirect to landing page
+    window.location.href = "/login"; 
+    logoutUser(); //state-reset and storage clearing
+    navigate("/"); 
   };
 
   return (

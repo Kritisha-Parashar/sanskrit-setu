@@ -82,7 +82,7 @@ const Lectures = () => {
       <main className="max-w-[1440px] mx-auto px-8 py-8">
         <div className="grid grid-cols-12 gap-10">
           
-          {/* --- LEFT SIDEBAR: COMPACT STATIC OVERVIEW --- */}
+          {/* LEFT SIDEBAR: COMPACT STATIC OVERVIEW  */}
           <aside className="col-span-12 lg:col-span-4 sticky top-24 self-start h-fit space-y-4">
             {/* Progress Card (Condensed Height) */}
             <Card className="bg-white/90 backdrop-blur-md rounded-[2rem] p-6 border border-white/50 shadow-xl overflow-hidden relative">
@@ -119,7 +119,7 @@ const Lectures = () => {
                </div>
             </Card>
 
-            {/* Voice Lab Card (Condensed Height) */}
+            {/* Voice Lab Card */}
             <div className="bg-primary p-6 rounded-[2rem] text-white shadow-xl shadow-primary/20 relative overflow-hidden group">
                <Sparkles className="absolute -bottom-4 -right-4 w-20 h-20 opacity-10" />
                <h4 className="text-md font-bold mb-1">Voice Lab</h4>
@@ -131,8 +131,6 @@ const Lectures = () => {
                </Link>
             </div>
           </aside>
-
-          {/* --- RIGHT COLUMN: MODULE LIST (SCROLLABLE) --- */}
           <section className="col-span-12 lg:col-span-8 space-y-4">
             <div className="flex items-center gap-4 mb-4 px-2">
                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em]">Available Modules</span>
@@ -154,18 +152,18 @@ const Lectures = () => {
                   >
                     <CardContent className="p-0">
                       <div className="flex items-stretch min-h-[120px]">
-                        {/* Interactive Status Strip */}
+                        
                         <div className={`w-1.5 shrink-0 transition-all ${isCompleted ? 'bg-success' : isUnlocked ? 'bg-primary group-hover:w-3' : 'bg-muted'}`} />
                         
                         <div className="flex-1 p-6 flex flex-col md:flex-row items-center gap-6">
-                           {/* Icon Box */}
+                           
                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border
                              ${isCompleted ? "bg-success/5 border-success/20 text-success" : !isUnlocked ? "bg-muted border-transparent text-muted-foreground" : "bg-primary/5 border-primary/20 text-primary"}
                            `}>
                               {isCompleted ? <CheckCircle2 className="w-6 h-6" /> : !isUnlocked ? <Lock className="w-5 h-5" /> : <BookOpen className="w-6 h-6" />}
                            </div>
 
-                           {/* Content */}
+                           
                            <div className="flex-1 text-center md:text-left min-w-0">
                               <div className="flex flex-col md:flex-row md:items-center gap-2 mb-1">
                                  <span className="text-[9px] font-black uppercase tracking-widest text-primary/60">Module {lecture.LessonNumber}</span>
@@ -181,7 +179,7 @@ const Lectures = () => {
                               </p>
                            </div>
 
-                           {/* Action */}
+                           
                            <div className="shrink-0 w-full md:w-auto">
                               {!isUnlocked ? (
                                 <div className="px-6 py-2 bg-muted/50 rounded-lg text-[10px] font-black text-muted-foreground flex items-center gap-2 border border-black/5">
@@ -207,7 +205,7 @@ const Lectures = () => {
                 );
               })}
             </div>
-            {/* Added spacing at the bottom for better scroll feel */}
+            
             <div className="h-20" />
           </section>
 
