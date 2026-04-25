@@ -21,12 +21,12 @@ createdb sanskrit_setu
 
 **Option B - Using postgres user with sudo:**
 ```bash
-sudo -u postgres createdb sanskrit_setu
+sudo -u postgres createdb mydatabase
 ```
 
 **Option C - Using psql:**
 ```bash
-psql -U postgres -c "CREATE DATABASE sanskrit_setu;"
+psql -U postgres -c "CREATE DATABASE mydatabase;"
 ```
 
 **Option D - Interactive psql:**
@@ -35,7 +35,7 @@ psql -U postgres
 ```
 Then in the psql prompt:
 ```sql
-CREATE DATABASE sanskrit_setu;
+CREATE DATABASE mydatabase;
 \q
 ```
 
@@ -43,12 +43,12 @@ CREATE DATABASE sanskrit_setu;
 
 Check if the database was created:
 ```bash
-psql -l | grep sanskrit_setu
+psql -l | grep mydatabase
 ```
 
 Or:
 ```bash
-psql -U postgres -l | grep sanskrit_setu
+psql -U postgres -l | grep mydatabase
 ```
 
 ## Step 4: Create .env File
@@ -64,7 +64,7 @@ FRONTEND_URL=http://localhost:8080
 # Update these with your actual PostgreSQL credentials
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=sanskrit_setu
+DB_NAME=mydatabase
 DB_USER=postgres
 DB_PASSWORD=your_postgres_password
 
@@ -96,4 +96,4 @@ The server will automatically create the necessary tables (`users` and `user_pro
 
 ### "database does not exist"
 - Make sure you completed Step 2 and the database was created successfully
-- Verify with: `psql -l | grep sanskrit_setu`
+- Verify with: `psql -l | grep mydatabase`
