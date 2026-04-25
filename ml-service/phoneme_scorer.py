@@ -279,21 +279,23 @@ def compare_pronunciations(
             "phoneme_sequence_expected": str,
             "phoneme_sequence_actual": str,
             "feedback": str,
-            "similarity": float 0-1
+            "similarity": float 0-1,
+            "transcribed_devanagari": str (converted version)
         }
     """
     transcribed = transcribed_word_devanagari or transcribed_word_romanized or ""
+    transcribed_devanagari = transcribed
     
     # Detect if transcribed text is romanized or Devanagari
     if transcribed and not is_devanagari(transcribed):
         # Convert romanized to Devanagari
         print(f"[Phoneme Scorer] Converting romanized '{transcribed}' to Devanagari")
-        transcribed = romanized_to_devanagari(transcribed)
-        print(f"[Phoneme Scorer] Converted to: '{transcribed}'")
+        transcribed_devanagari = romanized_to_devanagari(transcribed)
+        print(f"[Phoneme Scorer] Converted to: '{transcribed_devanagari}'")
     
     # Get phoneme sequences
     expected_phonemes = devanagari_to_phonemes(expected_word_devanagari)
-    actual_phonemes = devanagari_to_phonemes(transcribed) if transcribed else ""
+    actual_phonemes = devanagari_to_phonemes(transcribed_devanagari) if transcribed_devanagari else ""
     
     # If no transcription, return 0
     if not actual_phonemes:
@@ -303,7 +305,8 @@ def compare_pronunciations(
             "phoneme_sequence_expected": expected_phonemes,
             "phoneme_sequence_actual": "",
             "feedback": "No speech detected. Please try again.",
-            "similarity": 0.0
+            "similarity": 0.0,
+            "transcribed_devanagari": ""
         }
     
     # Compare phoneme sequences
@@ -311,7 +314,7 @@ def compare_pronunciations(
     score = int(round(similarity * 100))
     
     # Exact match check (after normalization)
-    exact_match = normalize_devanagari(expected_word_devanagari) == normalize_devanagari(transcribed)
+    exact_match = normalize_devanagari(expected_word_devanagari) == normalize_devanagari(transcribed_devanagari)
     
     # Generate feedback
     if score >= 90:
@@ -331,5 +334,6 @@ def compare_pronunciations(
         "phoneme_sequence_expected": expected_phonemes,
         "phoneme_sequence_actual": actual_phonemes,
         "feedback": feedback,
-        "similarity": round(similarity, 3)
+        "similarity": round(similarity, 3),
+        "transcribed_devanagari": transcribed_devanagari
     }

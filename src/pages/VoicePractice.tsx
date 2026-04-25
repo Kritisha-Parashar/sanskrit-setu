@@ -251,7 +251,7 @@ const VoicePractice: React.FC = () => {
       <div className="min-h-screen bg-[#9FD5CF] flex flex-col justify-center items-center p-6">
         <div className="bg-white rounded-2xl shadow-xl p-10 max-w-md w-full text-center">
           <h1 className="text-4xl font-bold text-[#0B7D77] mb-4">
-             Session Complete!
+            🎉 Session Complete!
           </h1>
           <p className="text-gray-600 mb-6">
             Great job practicing Sanskrit pronunciation!
@@ -387,7 +387,7 @@ const VoicePractice: React.FC = () => {
                 disabled={isEvaluating}
                 className="w-full bg-[#0B7D77] hover:bg-[#0A6E68] text-white px-6 py-3 rounded-xl text-lg"
               >
-                 {isEvaluating ? "Evaluating..." : "Speak"}
+                🎙️ {isEvaluating ? "Evaluating..." : "Speak"}
               </Button>
             ) : (
               <Button
@@ -395,7 +395,7 @@ const VoicePractice: React.FC = () => {
                 disabled={isEvaluating}
                 className="w-full bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl text-lg"
               >
-              Stop & Evaluate
+                ⏹️ Stop & Evaluate
               </Button>
             )}
           </div>
@@ -404,7 +404,7 @@ const VoicePractice: React.FC = () => {
           {bestAttempt && (
             <div className="bg-gray-50 rounded-lg p-4 text-left">
               <div className="flex items-center gap-2 mb-3 font-semibold text-[#0B7D77]">
-                {bestAttempt.result.word_match ? "Correct!" : "Incorrect!"} Best Attempt (
+                {bestAttempt.result.word_match ? "✅" : "⭕"} Best Attempt (
                 {bestAttempt.result.score}%)
               </div>
               <div className="space-y-2 text-sm">
