@@ -10,7 +10,7 @@ The ML Service is a **FastAPI microservice** that powers pronunciation evaluatio
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -60,7 +60,7 @@ Expected response:
 
 ---
 
-## 📋 System Requirements
+## System Requirements
 
 | Component   | Requirement                  | Notes                                      |
 | ----------- | ---------------------------- | ------------------------------------------ |
@@ -72,7 +72,7 @@ Expected response:
 
 ---
 
-## 🔧 Manual Setup (If run.sh Doesn't Work)
+## Manual Setup (If run.sh Doesn't Work)
 
 ### 1. Create Virtual Environment
 
@@ -103,7 +103,7 @@ python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 ---
 
-## 📚 API Documentation
+## API Documentation
 
 ### Interactive Docs
 
@@ -179,7 +179,7 @@ Now visit: **http://localhost:8080/voice-practice**
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Issue: "ModuleNotFoundError: No module named 'torch'"
 
@@ -247,7 +247,7 @@ whisper_model = whisper.load_model("tiny")  # ~39 MB, faster
 
 ---
 
-## 🎛️ Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -278,7 +278,7 @@ Create a `.env` file in the `ml-service/` directory (optional):
 
 ---
 
-## 🧪 Testing the API Locally
+## Testing the API Locally
 
 ### Using Python Requests
 
@@ -316,7 +316,7 @@ curl -X POST http://localhost:8000/evaluate \
 
 ---
 
-## 📊 Performance Benchmarks
+## Performance Benchmarks
 
 Tested on:
 
@@ -335,7 +335,7 @@ Tested on:
 
 ---
 
-## 🔄 Running in Production
+## Running in Production
 
 ### Option 1: Docker (Recommended)
 
@@ -392,7 +392,7 @@ sudo systemctl start sanskrit-ml
 
 ---
 
-## 📝 Logging
+## Logging
 
 Logs are printed to stdout during development. In production, redirect to a file:
 
@@ -408,7 +408,7 @@ tail -f ml-service.log
 
 ---
 
-## 🚀 Next Steps
+## Next Steps
 
 - **Phase 1 Complete:** Baseline ASR + phoneme scoring working
 - **Phase 2:** Fine-tune Whisper on Sanskrit data (see `PHASE_2_FINE_TUNING.md` when ready)
@@ -416,7 +416,7 @@ tail -f ml-service.log
 
 ---
 
-## 📖 Documentation
+## Documentation
 
 - [Whisper Docs](https://github.com/openai/whisper)
 - [FastAPI Docs](https://fastapi.tiangolo.com/)
@@ -438,4 +438,4 @@ If you encounter issues:
 
 **Version:** Phase 1 (Baseline)  
 **Last Updated:** April 2026  
-**Status:** ✅ Production Ready
+**Status:** Production Ready
